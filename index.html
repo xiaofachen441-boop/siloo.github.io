@@ -1,0 +1,937 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>西铁照明彩平图工具</title>
+<style>
+*{box-sizing:border-box}body{margin:0;height:100vh;overflow:hidden;background:#0b1120;color:#e5e7eb;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",Arial,sans-serif}.app{height:100vh;display:grid;grid-template-columns:252px 1fr 330px;grid-template-rows:50px 1fr}.top{grid-column:1/4;background:#0f172a;border-bottom:1px solid #243244;display:flex;align-items:center;gap:8px;padding:6px 10px;overflow-x:auto;white-space:nowrap}.brand{font-weight:900;margin-right:8px}.group{display:flex;gap:6px;align-items:center;padding-left:8px;border-left:1px solid #243244}.group:first-of-type{border-left:0}.gt{font-size:12px;color:#94a3b8}.side{background:#0f172a;border-right:1px solid #243244;overflow:auto}.right{border-left:1px solid #243244;border-right:0}.title{height:42px;display:flex;align-items:center;padding:0 12px;font-weight:900;border-bottom:1px solid #243244}.sec{padding:12px;border-bottom:1px solid #243244}.sec h3{font-size:13px;margin:0 0 9px}.small{font-size:12px;color:#94a3b8;line-height:1.55}button,.btn{border:1px solid #334155;background:#172033;color:#e5e7eb;border-radius:8px;padding:7px 9px;cursor:pointer;font-size:12px;display:inline-flex;align-items:center;gap:4px}button:hover,.btn:hover{background:#22314d}.tool.active,button.active,.btn.active{background:rgba(255,255,255,.07)!important;border-color:rgba(226,183,111,.55)!important;box-shadow:inset 0 -2px 0 rgba(226,183,111,.85);color:#fff!important}.danger{background:#3f1111;color:#fecaca;border-color:#7f1d1d}.canvasBox{position:relative;overflow:hidden;background:#111827}canvas{width:100%;height:100%;display:block;background:#111827;cursor:default}input[type=file]{display:none}.row{display:flex;flex-wrap:wrap;gap:6px;align-items:center}.form{display:grid;grid-template-columns:90px 1fr;gap:8px;align-items:center;margin:8px 0}.form label{font-size:12px;color:#cbd5e1}select,input,textarea{width:100%;background:#0b1120;border:1px solid #334155;color:#e5e7eb;border-radius:7px;padding:6px;font-size:12px}textarea{min-height:56px}input[type=color]{height:32px;padding:2px}.rng{display:grid;grid-template-columns:1fr 62px;gap:6px;align-items:center}.ctx{position:absolute;z-index:20;display:none;background:#0f172a;border:1px solid #334155;border-radius:10px;box-shadow:0 18px 45px rgba(0,0,0,.42);padding:6px;gap:4px}.ctx button{width:34px;height:31px;justify-content:center;padding:0}.ctx .sep{width:1px;background:#334155;margin:3px}.status{position:absolute;left:12px;bottom:10px;background:rgba(15,23,42,.78);border:1px solid rgba(148,163,184,.35);border-radius:999px;padding:6px 10px;font-size:12px;color:#cbd5e1}.list{display:flex;flex-direction:column;gap:5px}.item{border:1px solid #334155;background:#111827;border-radius:8px;padding:7px;font-size:12px;display:flex;justify-content:space-between;cursor:pointer}.item.sel{border-color:#38bdf8;background:#0b2537}.toast{position:absolute;right:345px;top:60px;background:#0f172a;border:1px solid #334155;border-radius:9px;padding:8px 12px;display:none;font-size:12px;z-index:30}.polybar{position:absolute;left:50%;bottom:18px;transform:translateX(-50%);background:rgba(15,23,42,.88);border:1px solid #334155;border-radius:999px;padding:7px 12px;font-size:12px;display:none}kbd{border:1px solid #334155;background:#111827;border-radius:4px;padding:1px 5px;color:#e2e8f0}.presetBtns{display:flex;gap:6px;flex-wrap:wrap}.hint{border:1px dashed #334155;border-radius:9px;padding:8px;color:#94a3b8;font-size:12px;line-height:1.5}.tool{padding:7px 8px}.toolWrap{position:relative;display:inline-flex}.toolMenu{position:fixed;top:50px;left:0;z-index:40;display:none;background:#0f172a;border:1px solid #334155;border-radius:10px;padding:6px;box-shadow:0 18px 45px rgba(0,0,0,.42);gap:4px}.toolWrap.open .toolMenu{display:flex}.toolMenu button{white-space:nowrap}.dev-disabled{opacity:.45;border-style:dashed;cursor:not-allowed!important}.dev-disabled:hover{background:#172033}.split{height:1px;background:#243244;margin:10px 0}.muted{opacity:.55;pointer-events:none}
+
+.layerTools{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin-bottom:8px}.layerTools button{justify-content:center;padding:6px 5px}.groupTools{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:8px}.groupTools button{justify-content:center;padding:6px 5px}.layerGroup{border:1px solid #334155;background:#0b1221;border-radius:9px;margin-bottom:7px;overflow:hidden}.layerGroupHead{display:flex;align-items:center;gap:5px;padding:7px;background:#111827;font-size:12px}.layerGroupHead .gname{flex:1;cursor:pointer;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.mini{width:24px;height:24px;padding:0;justify-content:center;border-radius:6px;font-size:11px}.layerChild{margin:4px 6px 5px 18px}.layerUngrouped{margin-top:6px}.lockNote{font-size:11px;color:#94a3b8;margin-top:6px}.item.locked{opacity:.55}.item.hidden{opacity:.38}
+
+/* V4 toolbar layout optimization */
+.app{grid-template-rows:88px 1fr!important}
+.top{height:88px;display:flex!important;flex-direction:column;align-items:stretch!important;gap:0!important;padding:0!important;overflow:visible!important;white-space:nowrap}
+.topMain{height:42px;display:flex;align-items:center;gap:8px;padding:6px 10px;border-bottom:1px solid #243244;overflow-x:auto}
+.topSub{height:46px;display:flex;align-items:center;padding:6px 10px;overflow-x:auto;white-space:nowrap}
+.navBtn{border:1px solid transparent;background:transparent;color:#cbd5e1;border-radius:8px;padding:7px 12px;font-size:13px;font-weight:700;cursor:pointer}
+.navBtn:hover{background:rgba(255,255,255,.055);border-color:rgba(255,255,255,.14)}.navBtn.active{background:rgba(255,255,255,.065)!important;border-color:rgba(226,183,111,.45)!important;color:#fff;box-shadow:inset 0 -2px 0 rgba(226,183,111,.9)}
+.panel{display:none;align-items:center;gap:8px}.panel.active{display:flex}.panel .group{border-left:0;padding-left:0}
+.toolIcon{min-width:34px;height:31px;justify-content:center;padding:0 8px;font-size:14px}.layerMiniGroup{display:flex;gap:6px;align-items:center}
+.shortcutPanel{gap:14px}.shortcutNote{font-size:12px;color:#cbd5e1;line-height:1.4}.shortcutReserve{opacity:.55;cursor:not-allowed}
+.leftLayerToolsRemoved{display:none!important}.ctx button{font-size:16px}.ctx button[title]{position:relative}
+
+/* Xitie premium toolbar refinement */
+.top{background:linear-gradient(180deg,#0d1527 0%,#0a1020 100%)!important;border-bottom:1px solid rgba(255,255,255,.08)!important}
+.topMain{background:rgba(7,12,24,.55);border-bottom:1px solid rgba(255,255,255,.08)!important}
+.topSub{background:rgba(8,14,27,.72);box-shadow:inset 0 1px 0 rgba(255,255,255,.035)}
+.brand{letter-spacing:.02em;color:#f8fafc;text-shadow:0 1px 10px rgba(0,0,0,.25);font-size:18px}
+.gt{background:transparent!important;color:#9aa8bb!important;margin-right:2px;font-weight:600}
+.panel.active{background:transparent!important;border-color:transparent!important;box-shadow:none!important}.panel .group{background:transparent!important}
+.topSub button,.topSub .btn{background:rgba(255,255,255,.055)!important;border-color:rgba(255,255,255,.11)!important;border-radius:11px!important;color:#e8edf5!important;box-shadow:none!important}
+.topSub button:hover,.topSub .btn:hover{background:rgba(255,255,255,.09)!important;border-color:rgba(226,183,111,.38)!important}
+.topSub .tool.active,.topSub button.active,.topSub .btn.active{background:rgba(226,183,111,.11)!important;border-color:rgba(226,183,111,.55)!important;box-shadow:inset 0 -2px 0 rgba(226,183,111,.85)!important;color:#fff!important}
+.topSub select,.topSub input{width:auto;min-width:130px;height:32px;background:#0b1120;border-color:rgba(255,255,255,.12)}
+.topSub .aiKeyInput{min-width:230px}.topSub .aiPromptHint{min-width:220px;color:#8fa0b6}.versionPill{font-size:11px;color:#b8c3d5;border:1px solid rgba(255,255,255,.09);border-radius:999px;padding:4px 8px;background:rgba(255,255,255,.035)}
+.xitieModalMask{position:absolute;inset:0;background:rgba(2,6,23,.62);z-index:80;display:none;align-items:center;justify-content:center;backdrop-filter:blur(3px)}
+.xitieModal{width:min(720px,calc(100vw - 48px));max-height:min(680px,calc(100vh - 48px));overflow:auto;background:#0f172a;border:1px solid rgba(226,183,111,.28);border-radius:16px;box-shadow:0 24px 80px rgba(0,0,0,.55);padding:18px}
+.xitieModalHead{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}.xitieModalHead h2{margin:0;font-size:16px}.xitieModalClose{width:30px;height:30px;justify-content:center;padding:0}.xitieModalBody{font-size:13px;line-height:1.7;color:#cbd5e1}.xitieModalBody h3{font-size:13px;margin:14px 0 8px;color:#f8fafc}.xitieModalBody ul{margin:6px 0 0 18px;padding:0}.xitieModalBody textarea{min-height:120px}.xitieGrid{display:grid;grid-template-columns:110px 1fr;gap:10px;align-items:center;margin:10px 0}.xitieActions{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}
+
+/* Custom shortcuts + AI prompt templates */
+.shortcutPanel{gap:10px;align-items:center}.shortcutNote{font-size:12px;color:#cbd5e1;line-height:1.4;max-width:780px;overflow:hidden;text-overflow:ellipsis}.shortcutReserve{opacity:1;cursor:pointer}.shortcutQuick{display:inline-flex;gap:6px;align-items:center;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.035);border-radius:999px;padding:4px 8px;color:#b8c3d5;font-size:11px}.shortcutTable{display:grid;gap:6px}.shortcutRow{display:grid;grid-template-columns:110px 1fr 120px 64px 64px;gap:8px;align-items:center;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.028);border-radius:10px;padding:7px}.shortcutRow.head{background:transparent;border-color:transparent;color:#94a3b8;font-size:12px;padding-top:0}.shortcutKeyInput{height:30px;text-align:center;font-weight:800;letter-spacing:.02em;color:#f8fafc;background:#0b1120!important}.shortcutCat{font-size:12px;color:#94a3b8}.shortcutName{font-size:12px;color:#e5e7eb}.shortcutConflict{border-color:rgba(248,113,113,.6)!important;color:#fecaca!important}.aiTemplateSelect{min-width:170px!important}.templateBadge{font-size:11px;color:#e2b76f;border:1px solid rgba(226,183,111,.28);border-radius:999px;padding:2px 7px;background:rgba(226,183,111,.08)}.templateList{display:grid;gap:8px}.templateRow{border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.028);border-radius:10px;padding:9px;display:grid;gap:6px}.templateRow strong{color:#f8fafc}.templateRow .small{color:#94a3b8}.xitieModalBody input.shortName{height:32px}.xitieModalBody .templateEditor{display:grid;grid-template-columns:120px 1fr;gap:10px;align-items:center}.xitieModalBody .templateEditor textarea{min-height:96px}
+
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="top">
+    <div class="topMain">
+      <div class="brand">西铁照明彩平图工具</div>
+      <button class="navBtn active" data-panel="file">文件</button>
+      <button class="navBtn" data-panel="light">灯光</button>
+      <button class="navBtn" data-panel="mark">标注</button>
+      <button class="navBtn" data-panel="view">视图</button>
+      <button class="navBtn" data-panel="ai">AI生图</button>
+      <button class="navBtn" data-panel="shortcut">快捷键</button>
+    </div>
+    <div class="topSub">
+      <div class="panel active" data-panel-content="file">
+        <div class="group"><span class="gt">文件</span><label class="btn" for="bgIn">上传图纸</label><input id="bgIn" type="file" accept="image/*"><button id="pngBtn">导出PNG</button><button id="jsonBtn">保存JSON</button><label class="btn" for="jsonIn">导入JSON</label><button id="versionBtn">版本信息</button><input id="jsonIn" type="file" accept="application/json,.json"></div>
+      </div>
+      <div class="panel" data-panel-content="light">
+        <div class="group"><span class="gt">灯光</span><button class="tool active" data-t="select">选择</button><button class="tool" data-t="pan">手形</button><button class="tool" data-t="point">点光源</button><button class="tool" data-t="lineLight">直线灯带</button><button class="tool dev-disabled" data-t="polylineLight" title="连续灯带待开发，当前版本暂不开放选择">连续灯带</button><button class="tool" data-t="rectLight">矩形灯带</button><button class="tool" data-t="ellipseLight">圆/椭圆灯带</button><button class="tool" data-t="polyLight">多边形灯带</button><span class="toolWrap" id="areaLightWrap"><button class="tool" data-area-menu="1" title="选择区域光形状">区域光 ▾</button><span class="toolMenu" id="areaMenu"><button class="tool" data-t="areaLightRect">矩形</button><button class="tool" data-t="areaLightTriangle">三角形</button><button class="tool" data-t="areaLightCircle">圆形</button><button class="tool" data-t="areaLightHex">六边形</button></span></span></div>
+      </div>
+      <div class="panel" data-panel-content="mark">
+        <div class="group"><span class="gt">标注</span><button class="tool" data-t="line">普通线</button><button class="tool" data-t="arrow">箭头</button><button class="tool" data-t="text">文字</button><span class="toolWrap" id="normalAreaWrap"><button class="tool" data-normal-area-menu="1" title="选择普通区域形状">普通区域 ▾</button><span class="toolMenu" id="normalAreaMenu"><button class="tool" data-t="areaRect">矩形</button><button class="tool" data-t="areaTriangle">三角形</button><button class="tool" data-t="areaCircle">圆形</button><button class="tool" data-t="areaHex">六边形</button></span></span></div>
+      </div>
+      <div class="panel" data-panel-content="view">
+        <div class="group"><span class="gt">视图</span><button id="fitBtn">适配</button><button id="zOut">-</button><span id="zoom" class="small">100%</span><button id="zIn">+</button></div>
+        <div class="group"><span class="gt">层级</span><div class="layerMiniGroup"><button id="layerTop" title="置顶">置顶</button><button id="layerUp" title="上移一层">上移</button><button id="layerDown" title="下移一层">下移</button><button id="layerBottom" title="置底">置底</button></div></div>
+      </div>
+      <div class="panel aiPanel" data-panel-content="ai">
+        <div class="group"><span class="gt">AI生图</span><select id="aiProvider"><option value="doubao">豆包</option><option value="openai">OpenAI Image</option><option value="qwen">千问</option><option value="deepseek">DeepSeek（提示词）</option><option value="custom">自定义接口</option></select><select id="aiMode"><option value="line_to_plan">线稿转彩平图</option><option value="style_optimize">彩平图风格优化</option><option value="prompt_optimize">提示词优化</option></select><select id="aiTemplate" class="aiTemplateSelect" title="提示词模板"></select><button id="aiApplyTemplate">套用模板</button><button id="aiTemplateManage">模板管理</button><input id="aiKey" class="aiKeyInput" type="password" placeholder="API Key / EXE本地中转预留"><button id="aiSaveKey">保存密钥</button><button id="aiPromptBtn">提示词</button><button id="aiGenerateBtn">生成彩平图</button><span class="versionPill">预留接口，EXE版本地中转</span></div>
+      </div>
+      <div class="panel shortcutPanel" data-panel-content="shortcut">
+        <span class="gt">快捷键</span>
+        <span id="shortcutMini" class="shortcutNote">快捷键加载中...</span>
+        <button id="shortcutSettingsBtn">设置 / 修改快捷键</button>
+        <button id="shortcutResetBtn">恢复默认快捷键</button>
+      </div>
+    </div>
+  </div>
+  <aside class="side">
+    <div class="title">图层</div>
+    <div class="sec"><h3>底图</h3><div class="form"><label>暗化</label><div class="rng"><input id="dark" type="range" min="0" max="90" value="55"><span id="darkV">55%</span></div></div><div class="form"><label>透明</label><div class="rng"><input id="bgop" type="range" min="10" max="100" value="100"><span id="bgopV">100%</span></div></div></div>
+    <div class="sec"><h3>对象 / 图层</h3>
+      <div class="groupTools"><button id="groupNew">新建组</button><button id="groupAdd">加入组</button><button id="groupRemove">移出组</button></div>
+      <div id="objList" class="list"></div>
+      <div class="lockNote">提示：被遮挡对象可从图层列表中选中；组支持显示 / 隐藏、锁定 / 解锁、改名。</div>
+    </div>
+  </aside>
+  <main class="canvasBox"><canvas id="c"></canvas><div id="status" class="status">未上传图纸</div><div id="ctx" class="ctx"></div><div id="toast" class="toast"></div><div id="polybar" class="polybar">绘制中：双击或右键完成</div></main>
+  <aside class="side right">
+    <div class="title">属性</div>
+    <div class="sec"><h3>发光预设</h3><div class="form"><label>当前预设</label><select id="preset"></select></div><div class="form"><label>使用上次</label><input id="useLast" type="checkbox" checked></div><div class="presetBtns"><button id="savePreset">保存为预设</button><button id="updatePreset">更新预设</button><button id="resetDefault">恢复默认</button></div><div class="hint" style="margin-top:8px">普通线、箭头、文字、普通区域不使用灯光参数。选中对象后可拖动控制点调整大小；支持 Ctrl+C / Ctrl+V 复制粘贴。</div></div>
+    <div class="sec"><h3 id="propTitle">未选中对象</h3><div id="props" class="small">选择对象后显示属性。</div></div>
+  </aside>
+</div>
+<script>
+(()=>{
+const cvs=document.getElementById('c'), ctx=cvs.getContext('2d'), box=cvs.parentElement, menu=document.getElementById('ctx'), toast=document.getElementById('toast');
+let dpr=1,W=1,H=1,bg={img:null,url:null,w:1600,h:1000},view={x:0,y:0,s:1},tool='select',objs=[],groups=[],sel=new Set(),id=1,gidn=1,drag=null,draw=null,preview=null,poly=[],hoverTarget=null,hoverHandle=null,clipboard=null,pasteCount=0;
+const defaultP={
+ point:{type:'point',beam:24,temp:3000,brightness:125,center:45,glow:230,soft:145,opacity:.96},
+ lineLight:{type:'linear',shape:'line',emission:'both',temp:3000,brightness:115,width:8,glow:165,soft:145,opacity:.92,showCore:true},
+ polylineLight:{type:'linear',shape:'polyline',emission:'both',temp:3000,brightness:115,width:8,glow:165,soft:145,opacity:.92,showCore:true},
+ rectLight:{type:'linear',shape:'rect',emission:'outside',temp:3000,brightness:115,width:8,glow:165,soft:145,opacity:.92,showCore:true},
+ ellipseLight:{type:'linear',shape:'ellipse',emission:'outside',temp:3000,brightness:115,width:8,glow:165,soft:145,opacity:.92,showCore:true},
+ polyLight:{type:'linear',shape:'polygon',emission:'outside',temp:3000,brightness:115,width:8,glow:165,soft:145,opacity:.92,showCore:true},
+ areaLight:{type:'areaLight',shape:'rect',fillMode:'uniform',temp:3000,brightness:115,opacity:.92,soft:145,dir:0},
+ line:{type:'draw',color:'#60a5fa',lineWidth:3,lineStyle:'solid',opacity:1,arrow:'none'},
+ arrow:{type:'draw',color:'#60a5fa',lineWidth:3,lineStyle:'solid',opacity:1,arrow:'end'},
+ text:{type:'text',text:'文字',color:'#ffffff',fontSize:24,bold:false,opacity:1},
+ area:{type:'normalArea',shape:'rect',areaShape:'rect',fill:'#38bdf8',stroke:'#38bdf8',fillEnabled:true,strokeEnabled:true,lineWidth:2,lineStyle:'solid',opacity:.22,soft:0}
+};
+let last=JSON.parse(localStorage.lpLastV5||'null')||JSON.parse(JSON.stringify(defaultP)),presets=loadPresets(),useLast=true;
+function gid(){return'g'+gidn++}
+function normalizeGroups(){
+  groups=(groups||[]).map((g,i)=>({id:g.id||gid(),name:g.name||('对象组 '+(i+1)),visible:g.visible!==false,locked:!!g.locked,collapsed:!!g.collapsed,objectIds:Array.isArray(g.objectIds)?g.objectIds:[]}));
+  objs.forEach(o=>{
+    if(o.rotation==null)o.rotation=0;
+    if(o.groupId&&!groups.some(g=>g.id===o.groupId))o.groupId=null;
+    if(o.type==='normalArea'){
+      if(!o.areaShape)o.areaShape=(o.shape==='ellipse'?'circle':o.shape==='polygon'?'polygon':'rect');
+      if(o.fillEnabled==null)o.fillEnabled=true;
+      if(o.strokeEnabled==null)o.strokeEnabled=true;
+      if(o.soft==null)o.soft=0;
+    }
+  });
+  groups.forEach(g=>{g.objectIds=[...new Set(objs.filter(o=>o.groupId===g.id).map(o=>o.id).concat(g.objectIds.filter(id=>objs.some(o=>o.id===id))))]});
+}
+function groupOf(o){return o&&o.groupId?groups.find(g=>g.id===o.groupId):null}
+function isHidden(o){let g=groupOf(o);return !!(o&&((g&&g.visible===false)||o.hidden))}
+function isLocked(o){let g=groupOf(o);return !!(o&&((g&&g.locked)||o.locked))}
+function isRotatable(o){return !!o && o.type!=='point' && !(o.type==='linear'&&o.shape==='line') && o.type!=='draw'}
+function rotateAround(p,c,a){let x=p.x-c.x,y=p.y-c.y,co=Math.cos(a),si=Math.sin(a);return{x:c.x+x*co-y*si,y:c.y+x*si+y*co}}
+function drawWithRotation(o,fn){let a=(+o.rotation||0)*Math.PI/180;if(!a||!isRotatable(o)){fn();return}let b=bb(o);ctx.save();ctx.translate(b.cx,b.cy);ctx.rotate(a);ctx.translate(-b.cx,-b.cy);fn();ctx.restore()}
+function selectedVisible(){return selectedObjects().filter(o=>!isHidden(o))}
+function removeFromGroups(ids){groups.forEach(g=>g.objectIds=g.objectIds.filter(id=>!ids.has(id)));objs.forEach(o=>{if(ids.has(o.id))o.groupId=null})}
+function deleteSelected(){if(!sel.size)return;let ids=new Set([...sel]);objs=objs.filter(o=>!ids.has(o.id));removeFromGroups(ids);sel.clear();props();render()}
+
+function uid(){return'o'+id++}function cp(o){return JSON.parse(JSON.stringify(o))}function toastMsg(t){toast.textContent=t;toast.style.display='block';clearTimeout(toast.t);toast.t=setTimeout(()=>toast.style.display='none',1600)}
+function isAreaTool(t){return ['areaLight','areaLightRect','areaLightTriangle','areaLightCircle','areaLightHex'].includes(t)}
+function isNormalAreaTool(t){return ['area','areaRect','areaTriangle','areaCircle','areaHex'].includes(t)}
+function toolLabel(t){return{select:'选择',pan:'手形',point:'点光源',lineLight:'直线灯带',polylineLight:'连续灯带（待开发）',rectLight:'矩形灯带',ellipseLight:'圆/椭圆灯带',polyLight:'多边形灯带',areaLight:'区域光·矩形',areaLightRect:'区域光·矩形',areaLightTriangle:'区域光·三角形',areaLightCircle:'区域光·圆形',areaLightHex:'区域光·六边形',line:'普通线',arrow:'箭头',text:'文字',area:'普通区域·矩形',areaRect:'普通区域·矩形',areaTriangle:'普通区域·三角形',areaCircle:'普通区域·圆形',areaHex:'普通区域·六边形'}[t]||t}
+function updateToolButtons(){document.querySelectorAll('.tool').forEach(b=>{let t=b.dataset.t;if(b.dataset.areaMenu){b.classList.toggle('active',isAreaTool(tool));return}if(b.dataset.normalAreaMenu){b.classList.toggle('active',isNormalAreaTool(tool));return}b.classList.toggle('active',t===tool)})}
+function setTool(t){if(t==='polylineLight'){toastMsg('连续灯带功能待开发，当前版本先不开放选择。');updateToolButtons();return}if(t==='areaLight')t='areaLightRect';if(t==='area')t='areaRect';tool=t;updateToolButtons();poly=[];preview=null;draw=null;hoverTarget=null;document.getElementById('polybar').style.display='none';let aw=document.getElementById('areaLightWrap');if(aw)aw.classList.remove('open');let nw=document.getElementById('normalAreaWrap');if(nw)nw.classList.remove('open');updateCursor();render()}
+document.querySelectorAll('.tool').forEach(b=>b.onclick=(ev)=>{if(b.classList.contains('dev-disabled')){ev.preventDefault();toastMsg('连续灯带功能待开发，当前版本先不开放选择。');return}if(b.dataset.areaMenu||b.dataset.normalAreaMenu){ev.stopPropagation();let wrap=document.getElementById(b.dataset.areaMenu?'areaLightWrap':'normalAreaWrap'),m=document.getElementById(b.dataset.areaMenu?'areaMenu':'normalAreaMenu'),r=b.getBoundingClientRect();m.style.left=r.left+'px';m.style.top=(r.bottom+6)+'px';wrap.classList.toggle('open');return}if(b.dataset.t)setTool(b.dataset.t)});
+document.addEventListener('click',e=>{let aw=document.getElementById('areaLightWrap');if(aw&&!aw.contains(e.target))aw.classList.remove('open');let nw=document.getElementById('normalAreaWrap');if(nw&&!nw.contains(e.target))nw.classList.remove('open')});
+function setTopPanel(name){document.querySelectorAll('.navBtn[data-panel]').forEach(b=>b.classList.toggle('active',b.dataset.panel===name));document.querySelectorAll('[data-panel-content]').forEach(p=>p.classList.toggle('active',p.dataset.panelContent===name));}
+document.querySelectorAll('.navBtn[data-panel]').forEach(b=>b.addEventListener('click',()=>setTopPanel(b.dataset.panel)));
+function resize(){dpr=Math.max(1,Math.min(2.5,window.devicePixelRatio||1));W=Math.max(1,box.clientWidth);H=Math.max(1,box.clientHeight);cvs.width=Math.round(W*dpr);cvs.height=Math.round(H*dpr);cvs.style.width=W+'px';cvs.style.height=H+'px';ctx.setTransform(dpr,0,0,dpr,0,0);render()}window.onresize=resize;resize();
+function ep(e){const r=cvs.getBoundingClientRect();return{x:e.clientX-r.left,y:e.clientY-r.top}}function sw(p){return{x:(p.x-view.x)/view.s,y:(p.y-view.y)/view.s}}function ws(p){return{x:p.x*view.s+view.x,y:p.y*view.s+view.y}}
+function fit(){let s=Math.min(W/bg.w,H/bg.h)*.92;view.s=s;view.x=(W-bg.w*s)/2;view.y=(H-bg.h*s)/2;render()}function zoomAt(p,f){let b=sw(p);view.s=Math.max(.05,Math.min(8,view.s*f));view.x=p.x-b.x*view.s;view.y=p.y-b.y*view.s;render()}document.getElementById('fitBtn').onclick=fit;document.getElementById('zIn').onclick=()=>zoomAt({x:W/2,y:H/2},1.15);document.getElementById('zOut').onclick=()=>zoomAt({x:W/2,y:H/2},1/1.15);cvs.onwheel=e=>{e.preventDefault();zoomAt(ep(e),e.deltaY<0?1.1:.9)};
+function cursorForHandle(h){if(!h)return null;if(h.kind==='rotate')return'grab';if(h.kind==='lineEnd'||h.kind==='pointRadius')return'crosshair';let k=h.handle||'';if(k==='n'||k==='s')return'ns-resize';if(k==='e'||k==='w')return'ew-resize';if(k==='ne'||k==='sw')return'nesw-resize';if(k==='nw'||k==='se')return'nwse-resize';return'default'}
+function updateCursor(){if(drag&&drag.mode==='pan')cvs.style.cursor='grabbing';else if(drag&&['resize','lineEnd','pointRadius','rotate'].includes(drag.mode))cvs.style.cursor=cursorForHandle(drag.handle)||'grab';else if(drag&&drag.mode==='move')cvs.style.cursor='move';else if(tool==='pan')cvs.style.cursor='grab';else if(tool==='select')cvs.style.cursor=cursorForHandle(hoverHandle)||(hoverTarget?'move':'default');else if(tool==='text')cvs.style.cursor='text';else cvs.style.cursor='crosshair'}
+function normBox(a,b){let x=Math.min(a.x,b.x),y=Math.min(a.y,b.y),w=Math.abs(b.x-a.x),h=Math.abs(b.y-a.y);return{x,y,w,h,cx:x+w/2,cy:y+h/2}}
+function squareBox(a,b){let dx=b.x-a.x,dy=b.y-a.y,len=Math.min(Math.abs(dx),Math.abs(dy));return{x:a.x,y:a.y,w:(dx<0?-len:len)||0,h:(dy<0?-len:len)||0}}
+function trianglePts(a,b){let r=normBox(a,b);return[{x:r.cx,y:r.y},{x:r.x+r.w,y:r.y+r.h},{x:r.x,y:r.y+r.h}]}
+function hexPts(a,b){let r=normBox(a,b),x=r.x,y=r.y,w=r.w,h=r.h;return[{x:x+w*.25,y},{x:x+w*.75,y},{x:x+w,y:y+h*.5},{x:x+w*.75,y:y+h},{x:x+w*.25,y:y+h},{x,y:y+h*.5}]}
+function makePreview(t,st,end){
+  if(t==='ellipseLight')return{kind:'ellipse',x:st.x,y:st.y,w:end.x-st.x,h:end.y-st.y};
+  if(t==='areaLightCircle'||t==='areaCircle'){let r=squareBox(st,end);return{kind:'ellipse',...r}}
+  if(t==='areaLightTriangle'||t==='areaTriangle')return{kind:'polygon',points:trianglePts(st,end)};
+  if(t==='areaLightHex'||t==='areaHex')return{kind:'polygon',points:hexPts(st,end)};
+  return{kind:'rect',x:st.x,y:st.y,w:end.x-st.x,h:end.y-st.y}
+}
+function makeAreaLightObject(t,st,end){let o=defaultFor('areaLight');if(t==='areaLightCircle'){Object.assign(o,{shape:'ellipse',areaShape:'circle',...squareBox(st,end)})}else if(t==='areaLightTriangle'){Object.assign(o,{shape:'polygon',areaShape:'triangle',points:trianglePts(st,end)})}else if(t==='areaLightHex'){Object.assign(o,{shape:'polygon',areaShape:'hex',points:hexPts(st,end)})}else{Object.assign(o,{shape:'rect',areaShape:'rect',x:st.x,y:st.y,w:end.x-st.x,h:end.y-st.y})}return o}
+function makeNormalAreaObject(t,st,end){
+  let o=defaultFor('area');
+  if(t==='areaCircle')Object.assign(o,{shape:'ellipse',areaShape:'circle',...squareBox(st,end)});
+  else if(t==='areaTriangle')Object.assign(o,{shape:'polygon',areaShape:'triangle',points:trianglePts(st,end)});
+  else if(t==='areaHex')Object.assign(o,{shape:'polygon',areaShape:'hex',points:hexPts(st,end)});
+  else Object.assign(o,{shape:'rect',areaShape:'rect',x:st.x,y:st.y,w:end.x-st.x,h:end.y-st.y});
+  return o;
+}
+['dark','bgop'].forEach(i=>document.getElementById(i).oninput=()=>{document.getElementById('darkV').textContent=document.getElementById('dark').value+'%';document.getElementById('bgopV').textContent=document.getElementById('bgop').value+'%';render()});
+document.getElementById('bgIn').onchange=e=>{let f=e.target.files[0];if(!f)return;let r=new FileReader();r.onload=ev=>{let im=new Image();im.onload=()=>{bg={img:im,url:ev.target.result,w:im.naturalWidth,h:im.naturalHeight};fit()};im.src=ev.target.result};r.readAsDataURL(f)};
+function kelvin(k){k=Math.max(1000,Math.min(12000,+k))/100;let r,g,b;if(k<=66){r=255;g=99.47*Math.log(k)-161.12;b=k<=19?0:138.52*Math.log(k-10)-305.04}else{r=329.7*Math.pow(k-60,-.133);g=288.1*Math.pow(k-60,-.0755);b=255}return{r:Math.max(0,Math.min(255,r))|0,g:Math.max(0,Math.min(255,g))|0,b:Math.max(0,Math.min(255,b))|0}}function rgba(c,a){return`rgba(${c.r},${c.g},${c.b},${a})`}function hexToRgb(h){let n=parseInt(h.replace('#',''),16);return{r:(n>>16)&255,g:(n>>8)&255,b:n&255}}
+function dashFor(style,w){if(style==='dash')return[Math.max(10,w*5),Math.max(7,w*3)];if(style==='dot')return[Math.max(1,w*.9),Math.max(6,w*3.2)];return[]}
+function resetCanvas(){ctx.setTransform(1,0,0,1,0,0);ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over';ctx.filter='none';ctx.lineWidth=1;ctx.lineCap='butt';ctx.lineJoin='miter';ctx.setLineDash([]);ctx.clearRect(0,0,cvs.width,cvs.height);ctx.fillStyle='#111827';ctx.fillRect(0,0,cvs.width,cvs.height);ctx.setTransform(dpr,0,0,dpr,0,0);ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over';ctx.filter='none';ctx.setLineDash([])}
+function drawBg(){resetCanvas();ctx.save();ctx.translate(view.x,view.y);ctx.scale(view.s,view.s);if(bg.img){ctx.globalAlpha=+document.getElementById('bgop').value/100;ctx.drawImage(bg.img,0,0,bg.w,bg.h)}else{ctx.fillStyle='#374151';ctx.fillRect(0,0,bg.w,bg.h);ctx.fillStyle='#64748b';ctx.font='36px sans-serif';ctx.fillText('上传户型图后开始绘制',60,90)}ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over';ctx.filter='none';ctx.fillStyle=`rgba(0,0,0,${+document.getElementById('dark').value/100})`;ctx.fillRect(0,0,bg.w,bg.h);ctx.restore();ctx.setTransform(dpr,0,0,dpr,0,0);ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over';ctx.filter='none'}
+function pathFor(o){let p=new Path2D();if(o.shape==='line'){p.moveTo(o.x1,o.y1);p.lineTo(o.x2,o.y2)}else if(o.shape==='polyline'||o.shape==='polygon'){(o.points||[]).forEach((q,i)=>i?p.lineTo(q.x,q.y):p.moveTo(q.x,q.y));if(o.shape==='polygon')p.closePath()}else if(o.shape==='rect'){p.rect(o.x,o.y,o.w,o.h)}else if(o.shape==='ellipse'){p.ellipse(o.x+o.w/2,o.y+o.h/2,Math.abs(o.w/2),Math.abs(o.h/2),0,0,Math.PI*2)}return p}
+function clipEmission(o,side){if(!side||side==='both')return;let p=pathFor(o);if(side==='inside'){ctx.clip(p);return}if(side==='outside'){let q=new Path2D();q.rect(-50000,-50000,100000,100000);q.addPath(p);ctx.clip(q,'evenodd');return}}
+function clipLineSide(o,side){if(side==='both')return;let segs=o.shape==='polyline'?o.points.slice(0,-1).map((p,i)=>[p,o.points[i+1]]):[[{x:o.x1,y:o.y1},{x:o.x2,y:o.y2}]];let s=segs[0];let a=s[0],b=s[1],dx=b.x-a.x,dy=b.y-a.y,len=Math.hypot(dx,dy)||1,nx=-dy/len,ny=dx/len;if(side==='right'){nx=-nx;ny=-ny}let big=100000;let q=new Path2D();q.moveTo(a.x+nx*big,a.y+ny*big);q.lineTo(b.x+nx*big,b.y+ny*big);q.lineTo(b.x-nx*2,b.y-ny*2);q.lineTo(a.x-nx*2,a.y-ny*2);q.closePath();ctx.clip(q)}
+function strokePath(o){let p=pathFor(o);ctx.stroke(p)}
+function clamp01(v){return Math.max(0,Math.min(1,v))}
+function darkerColor(c,f=.60){return{r:Math.max(0,Math.min(255,Math.round(c.r*f))),g:Math.max(0,Math.min(255,Math.round(c.g*f))),b:Math.max(0,Math.min(255,Math.round(c.b*f)))}}
+function boostColor(c,f=1.08,add=8){return{r:Math.max(0,Math.min(255,Math.round(c.r*f+add))),g:Math.max(0,Math.min(255,Math.round(c.g*f+add))),b:Math.max(0,Math.min(255,Math.round(c.b*f+add)))}}
+function pointListForLinear(o){
+  if(o.shape==='line')return[{x:o.x1,y:o.y1},{x:o.x2,y:o.y2}];
+  if(o.shape==='polyline'||o.shape==='polygon')return o.points||[];
+  if(o.shape==='rect')return[{x:o.x,y:o.y},{x:o.x+o.w,y:o.y},{x:o.x+o.w,y:o.y+o.h},{x:o.x,y:o.y+o.h}];
+  return[];
+}
+function signedAreaPts(pts){let a=0;for(let i=0;i<pts.length;i++){let p=pts[i],q=pts[(i+1)%pts.length];a+=p.x*q.y-q.x*p.y}return a/2}
+function normalizeLegacy(o){
+  if(o&&o.type==='linear'&&o.shape==='polyline'&&(o.emission==='inner'||!['left','right','both'].includes(o.emission))){
+    o.emission='both';
+  }
+  return o;
+}
+
+function washGradientStops(g,c,alpha,soft){
+  const mid=0.28+soft*.08;
+  g.addColorStop(0,rgba(c,clamp01(alpha)));
+  g.addColorStop(mid,rgba(c,clamp01(alpha*(.45+soft*.10))));
+  g.addColorStop(.72,rgba(c,clamp01(alpha*.12)));
+  g.addColorStop(1,rgba(c,0));
+}
+function drawWashSegment(a,b,dist,alpha,side,c,soft){
+  const dx=b.x-a.x,dy=b.y-a.y,len=Math.hypot(dx,dy);
+  if(!isFinite(len)||len<.01||!isFinite(dist)||dist<=0||alpha<=0)return;
+  const ux=dx/len,uy=dy/len;
+  const drawSide=(which)=>{
+    // 参考上传示例：沿灯带法线方向直接铺渐变面，避免多层 stroke 套光晕。
+    const nx=which==='right'?-uy:uy;
+    const ny=which==='right'?ux:-ux;
+    const p3={x:b.x+nx*dist,y:b.y+ny*dist};
+    const p4={x:a.x+nx*dist,y:a.y+ny*dist};
+    const g=ctx.createLinearGradient(a.x,a.y,a.x+nx*dist,a.y+ny*dist);
+    washGradientStops(g,c,alpha,soft);
+    ctx.fillStyle=g;
+    ctx.beginPath();
+    ctx.moveTo(a.x,a.y);
+    ctx.lineTo(b.x,b.y);
+    ctx.lineTo(p3.x,p3.y);
+    ctx.lineTo(p4.x,p4.y);
+    ctx.closePath();
+    ctx.fill();
+  };
+  if(side==='both'){drawSide('left');drawSide('right')}
+  else drawSide(side==='right'?'right':'left');
+}
+function drawWashCorner(cx,cy,dist,alpha,a0,a1,c,soft){
+  if(dist<=0||alpha<=0)return;
+  const g=ctx.createRadialGradient(cx,cy,0,cx,cy,dist);
+  washGradientStops(g,c,alpha,soft);
+  ctx.fillStyle=g;
+  ctx.beginPath();
+  ctx.moveTo(cx,cy);
+  ctx.arc(cx,cy,dist,a0,a1);
+  ctx.closePath();
+  ctx.fill();
+}
+function drawLinearCore(o,c,core,op){
+  if(o.showCore===false)return;
+  ctx.save();
+  ctx.globalCompositeOperation='source-over';
+  ctx.lineCap='round';
+  ctx.lineJoin='round';
+  if(o.shape==='polyline'){
+    const r=buildPolylineRibbon(o,o.emission||'both',core);
+    if(r&&r.path){
+      ctx.fillStyle=rgba(darkerColor(c,.58),Math.min(.82,.48+op*.22));
+      ctx.fill(r.path);
+      ctx.lineWidth=Math.max(1,core*.16);
+      ctx.strokeStyle=rgba(c,Math.min(.42,op*.34));
+      ctx.stroke(r.path);
+    }
+    ctx.restore();
+    return;
+  }
+  ctx.lineWidth=Math.max(1,core*.72);
+  ctx.strokeStyle=rgba(darkerColor(c,.58),Math.min(.95,.72+op*.18));
+  strokePath(o);
+  ctx.lineWidth=Math.max(1,core*.22);
+  // 保持色温不变：核心高亮只提升透明度，不再叠加偏白色值。
+  ctx.strokeStyle=rgba(c,Math.min(.42,op*.36));
+  strokePath(o);
+  ctx.restore();
+}
+function clipPathMode(p,mode){
+  if(mode==='inside'){ctx.clip(p);return}
+  if(mode==='outside'){let q=new Path2D();q.rect(-50000,-50000,100000,100000);q.addPath(p);ctx.clip(q,'evenodd')}
+}
+function drawStrokeGlowPath(p,c,alpha,core,glow,soft,mode){
+  const blurOuter=Math.max(5,glow*(.18+soft*.10));
+  const blurInner=Math.max(3,glow*(.08+soft*.06));
+  ctx.save();
+  clipPathMode(p,mode);
+  ctx.globalCompositeOperation='lighter';
+  ctx.lineCap='round';
+  ctx.lineJoin='round';
+  ctx.filter=`blur(${blurOuter}px)`;
+  ctx.lineWidth=Math.max(core+2,core+glow*1.02);
+  ctx.strokeStyle=rgba(c,clamp01(alpha*.98));
+  ctx.stroke(p);
+  ctx.filter=`blur(${blurInner}px)`;
+  ctx.lineWidth=Math.max(core+1,core+glow*.5);
+  ctx.strokeStyle=rgba(c,clamp01(alpha*.66));
+  ctx.stroke(p);
+  ctx.restore();
+}
+function drawEllipseWash(o,c,alpha,core,glow,soft){
+  const p=pathFor(o);
+  const mode=o.emission||'outside';
+  if(mode==='both'){drawStrokeGlowPath(p,c,alpha,core,glow,soft,'outside');drawStrokeGlowPath(p,c,alpha*.92,core,glow,soft,'inside')}
+  else drawStrokeGlowPath(p,c,alpha,core,glow,soft,mode);
+}
+function drawClosedLinear(o,c,alpha,core,glow,soft){
+  const p=pathFor(o);
+  const mode=o.emission||'outside';
+  if(mode==='both'){drawStrokeGlowPath(p,c,alpha,core,glow,soft,'outside');drawStrokeGlowPath(p,c,alpha*.92,core,glow,soft,'inside')}
+  else drawStrokeGlowPath(p,c,alpha,core,glow,soft,mode);
+}
+function cleanPolylinePoints(o){
+  const pts=o.points||[];
+  const out=[];
+  for(let i=0;i<pts.length;i++){
+    const p=pts[i];
+    if(!p||!isFinite(p.x)||!isFinite(p.y))continue;
+    if(!out.length||Math.hypot(p.x-out[out.length-1].x,p.y-out[out.length-1].y)>.01)out.push({x:p.x,y:p.y});
+  }
+  return out;
+}
+function lineIntersection(p,u,q,v){
+  const den=u.x*v.y-u.y*v.x;
+  if(Math.abs(den)<1e-6)return null;
+  const wx=q.x-p.x,wy=q.y-p.y;
+  const t=(wx*v.y-wy*v.x)/den;
+  return{x:p.x+u.x*t,y:p.y+u.y*t};
+}
+function polySegInfo(a,b){
+  const dx=b.x-a.x,dy=b.y-a.y,len=Math.hypot(dx,dy)||1;
+  const ux=dx/len,uy=dy/len;
+  return{ux,uy,nx:-uy,ny:ux,len};
+}
+function offsetSidePoints(pts,half,side){
+  const sign=side==='left'?1:-1;
+  const segs=[];
+  for(let i=0;i<pts.length-1;i++)segs.push(polySegInfo(pts[i],pts[i+1]));
+  const res=[];
+  for(let i=0;i<pts.length;i++){
+    if(i===0){
+      const s=segs[0];
+      res.push({x:pts[i].x+s.nx*half*sign,y:pts[i].y+s.ny*half*sign});
+    }else if(i===pts.length-1){
+      const s=segs[segs.length-1];
+      res.push({x:pts[i].x+s.nx*half*sign,y:pts[i].y+s.ny*half*sign});
+    }else{
+      const a=segs[i-1],b=segs[i];
+      const p={x:pts[i].x+a.nx*half*sign,y:pts[i].y+a.ny*half*sign};
+      const q={x:pts[i].x+b.nx*half*sign,y:pts[i].y+b.ny*half*sign};
+      let m=lineIntersection(p,{x:a.ux,y:a.uy},q,{x:b.ux,y:b.uy});
+      const maxMiter=Math.max(half*7,half+28);
+      if(!m||Math.hypot(m.x-pts[i].x,m.y-pts[i].y)>maxMiter){
+        let nx=a.nx+b.nx,ny=a.ny+b.ny;
+        const l=Math.hypot(nx,ny);
+        if(l>.001){nx/=l;ny/=l}else{nx=b.nx;ny=b.ny}
+        m={x:pts[i].x+nx*half*sign,y:pts[i].y+ny*half*sign};
+      }
+      res.push(m);
+    }
+  }
+  return res;
+}
+function buildPathFromPts(pts){
+  const p=new Path2D();
+  if(!pts.length)return p;
+  p.moveTo(pts[0].x,pts[0].y);
+  for(let i=1;i<pts.length;i++)p.lineTo(pts[i].x,pts[i].y);
+  p.closePath();
+  return p;
+}
+function buildPolylineRibbon(o,mode,core){
+  normalizeLegacy(o);
+  const pts=cleanPolylinePoints(o);
+  if(pts.length<2)return null;
+  const half=Math.max(1,(core||o.width||8)/2);
+  const left=offsetSidePoints(pts,half,'left');
+  const right=offsetSidePoints(pts,half,'right');
+  let poly=[];
+  mode=mode||'both';
+  if(mode==='left'){
+    poly=left.concat(pts.slice().reverse());
+  }else if(mode==='right'){
+    poly=pts.concat(right.slice().reverse());
+  }else{
+    poly=left.concat(right.slice().reverse());
+  }
+  return{points:poly,path:buildPathFromPts(poly)};
+}
+function drawPolylineUnified(o,c,alpha,core,glow,soft){
+  normalizeLegacy(o);
+  // 新连续灯带算法：中心路径 → 有宽度的闭合灯带轮廓 → 按闭合不规则图形统一发光。
+  const r=buildPolylineRibbon(o,o.emission||'both',core);
+  if(!r||!r.path){
+    drawStrokeGlowPath(pathFor(o),c,alpha,core,glow,soft,'both');
+    return;
+  }
+  drawStrokeGlowPath(r.path,c,alpha,Math.max(1,core*.72),glow,soft,'outside');
+  drawStrokeGlowPath(r.path,c,alpha*.92,Math.max(1,core*.72),glow,soft,'inside');
+}
+function drawLinear(o){
+  normalizeLegacy(o);
+  const c=kelvin(o.temp);
+  const br=Math.max(0,(o.brightness||0)/100);
+  const op=o.opacity??.8;
+  const soft=Math.max(0,(o.soft??90)/100);
+  // 保留当前较亮的数值逻辑，但不再通过往 RGB 里叠加白色来提亮。
+  const glow=Math.max(8,(o.glow||120)*(1+Math.max(0,soft-1)*.24)*(1+Math.max(0,br-1)*.08));
+  const core=Math.max(1,o.width||8);
+  const alpha=clamp01(op*(.72+soft*.20)*Math.max(.35,br));
+
+  ctx.save();
+  ctx.globalCompositeOperation='lighter';
+  ctx.lineCap='round';
+  ctx.lineJoin='round';
+
+  if(o.shape==='line'){
+    const side=o.emission||'both';
+    drawWashSegment({x:o.x1,y:o.y1},{x:o.x2,y:o.y2},glow,alpha,side,c,soft);
+  }else if(o.shape==='polyline'){
+    drawPolylineUnified(o,c,alpha,core,glow,soft);
+  }else if(o.shape==='rect'){
+    drawClosedLinear(o,c,alpha,core,glow,soft);
+  }else if(o.shape==='polygon'){
+    drawClosedLinear(o,c,alpha,core,glow,soft);
+  }else if(o.shape==='ellipse'){
+    drawEllipseWash(o,c,alpha,core,glow,soft);
+  }
+
+  ctx.restore();
+  drawLinearCore(o,c,core,op);
+}
+function drawPoint(o){let c=kelvin(o.temp),x=o.x,y=o.y,br=Math.max(0,o.brightness/100),op=o.opacity,soft=Math.max(0,(o.soft??100)/100),beam={15:.72,24:1,36:1.34}[o.beam]||1,spread=1+Math.max(0,soft-1)*.35+Math.max(0,br-1)*.06,r=(o.glow*beam)*spread;ctx.globalCompositeOperation='lighter';let g=ctx.createRadialGradient(x,y,0,x,y,r*1.32);g.addColorStop(0,rgba({r:255,g:248,b:226},Math.min(1,.34*br*op)));g.addColorStop(.20,rgba(c,Math.min(1,.52*br*op)));g.addColorStop(.52,rgba(c,Math.min(1,.22*br*op)));g.addColorStop(.84,rgba(c,Math.min(1,.08*br*op)));g.addColorStop(1,rgba(c,0));ctx.fillStyle=g;ctx.beginPath();ctx.arc(x,y,r*1.32,0,Math.PI*2);ctx.fill();g=ctx.createRadialGradient(x,y,0,x,y,r*.68);g.addColorStop(0,rgba({r:255,g:250,b:235},Math.min(1,.72*br*op)));g.addColorStop(.26,rgba(c,Math.min(1,.52*br*op)));g.addColorStop(.62,rgba(c,Math.min(1,.28*br*op)));g.addColorStop(1,rgba(c,0));ctx.fillStyle=g;ctx.beginPath();ctx.arc(x,y,r*.68,0,Math.PI*2);ctx.fill();g=ctx.createRadialGradient(x,y,0,x,y,Math.max(12,r*.15));g.addColorStop(0,`rgba(255,255,246,${Math.min(1,.78*(o.center/100)*op)})`);g.addColorStop(.48,rgba({r:255,g:242,b:205},Math.min(1,.52*(o.center/100)*op)));g.addColorStop(1,rgba(c,0));ctx.fillStyle=g;ctx.beginPath();ctx.arc(x,y,Math.max(12,r*.15),0,Math.PI*2);ctx.fill();ctx.globalCompositeOperation='source-over'}
+
+function drawAreaLight(o){let c=kelvin(o.temp),br=Math.max(0,(o.brightness||0)/100),a=Math.min(1,(o.opacity||.6)*Math.max(.75,br)*1.55),soft=Math.max(0,o.soft||65);ctx.save();ctx.globalCompositeOperation='screen';let p=pathFor(o);let bbx=bb(o),g;if(o.fillMode==='linear'||o.fillMode==='directional'){let rad=(o.dir||0)*Math.PI/180,cx=bbx.cx,cy=bbx.cy,L=Math.max(bbx.w,bbx.h);g=ctx.createLinearGradient(cx-Math.cos(rad)*L/2,cy-Math.sin(rad)*L/2,cx+Math.cos(rad)*L/2,cy+Math.sin(rad)*L/2);g.addColorStop(0,rgba(c,0));g.addColorStop(.5,rgba(c,a));g.addColorStop(1,rgba(c,0))}else if(o.fillMode==='radial'){g=ctx.createRadialGradient(bbx.cx,bbx.cy,0,bbx.cx,bbx.cy,Math.max(bbx.w,bbx.h)*.82);g.addColorStop(0,rgba(c,a));g.addColorStop(1,rgba(c,0))}else{g=rgba(c,a)}ctx.filter=`blur(${soft/3.1}px)`;ctx.fillStyle=g;ctx.fill(p);ctx.restore()}
+function drawDraw(o){ctx.save();ctx.globalAlpha=o.opacity??1;ctx.strokeStyle=o.color||'#60a5fa';ctx.fillStyle=o.color||'#60a5fa';ctx.lineWidth=o.lineWidth||3;ctx.lineCap='round';ctx.lineJoin='round';ctx.setLineDash(dashFor(o.lineStyle,o.lineWidth||3));ctx.beginPath();ctx.moveTo(o.x1,o.y1);ctx.lineTo(o.x2,o.y2);ctx.stroke();ctx.setLineDash([]);if(o.arrow&&o.arrow!=='none'){let drawHead=(a,b)=>{let ang=Math.atan2(b.y-a.y,b.x-a.x),s=8+(o.lineWidth||3)*3.5;ctx.beginPath();ctx.moveTo(b.x,b.y);ctx.lineTo(b.x-Math.cos(ang-Math.PI/7)*s,b.y-Math.sin(ang-Math.PI/7)*s);ctx.lineTo(b.x-Math.cos(ang+Math.PI/7)*s,b.y-Math.sin(ang+Math.PI/7)*s);ctx.closePath();ctx.fill()};let a={x:o.x1,y:o.y1},b={x:o.x2,y:o.y2};if(o.arrow==='end'||o.arrow==='both')drawHead(a,b);if(o.arrow==='start'||o.arrow==='both')drawHead(b,a)}ctx.restore()}
+function drawText(o){ctx.save();ctx.globalAlpha=o.opacity??1;ctx.fillStyle=o.color||'#fff';ctx.font=`${o.bold?'700 ':''}${o.fontSize||24}px sans-serif`;ctx.fillText(o.text||'文字',o.x,o.y);ctx.restore()}
+function drawNormalArea(o){
+  ctx.save();
+  const p=pathFor(o),soft=Math.max(0,+o.soft||0),op=o.opacity??.22;
+  if(o.fillEnabled!==false){
+    ctx.globalAlpha=op;
+    ctx.filter=soft>0?`blur(${soft/4}px)`:'none';
+    ctx.fillStyle=o.fill||'#38bdf8';
+    ctx.fill(p);
+  }
+  ctx.filter='none';
+  if(o.strokeEnabled!==false && (o.lineWidth||0)>0){
+    if(soft>0){
+      ctx.globalAlpha=Math.min(1,op*.9+.15);
+      ctx.filter=`blur(${Math.max(0.6,soft/8)}px)`;
+      ctx.strokeStyle=o.stroke||o.fill||'#38bdf8';
+      ctx.lineWidth=(o.lineWidth||2)+Math.max(0,soft*.02);
+      ctx.setLineDash(dashFor(o.lineStyle,o.lineWidth||2));
+      ctx.stroke(p);
+    }
+    ctx.globalAlpha=1;
+    ctx.filter='none';
+    ctx.strokeStyle=o.stroke||o.fill||'#38bdf8';
+    ctx.lineWidth=o.lineWidth||2;
+    ctx.setLineDash(dashFor(o.lineStyle,o.lineWidth||2));
+    ctx.stroke(p);
+  }
+  ctx.restore()
+}
+function drawObj(o){normalizeLegacy(o);if(isHidden(o))return;ctx.save();try{ctx.globalAlpha=1;ctx.filter='none';drawWithRotation(o,()=>{if(o.type==='point')drawPoint(o);else if(o.type==='linear')drawLinear(o);else if(o.type==='areaLight')drawAreaLight(o);else if(o.type==='draw')drawDraw(o);else if(o.type==='text')drawText(o);else if(o.type==='normalArea')drawNormalArea(o)})}finally{ctx.restore()}}
+function bb(o){if(o.type==='point'){let r=(o.glow||160)*(o.beam||24)/24;return{x:o.x-r,y:o.y-r,w:r*2,h:r*2,cx:o.x,cy:o.y}}if(o.shape==='line'||o.type==='draw'){let x=Math.min(o.x1,o.x2),y=Math.min(o.y1,o.y2),w=Math.abs(o.x2-o.x1),h=Math.abs(o.y2-o.y1);return{x,y,w,h,cx:x+w/2,cy:y+h/2}}if(o.shape==='polyline'||o.shape==='polygon'){let xs=o.points.map(p=>p.x),ys=o.points.map(p=>p.y),x=Math.min(...xs),y=Math.min(...ys),w=Math.max(...xs)-x,h=Math.max(...ys)-y;return{x,y,w,h,cx:x+w/2,cy:y+h/2}}if(o.type==='text'){let w=(o.text||'文字').length*(o.fontSize||24)*.62,h=(o.fontSize||24);return{x:o.x,y:o.y-h,w,h,cx:o.x+w/2,cy:o.y-h/2}}let x=o.x,y=o.y,w=o.w,h=o.h;return{x:Math.min(x,x+w),y:Math.min(y,y+h),w:Math.abs(w),h:Math.abs(h),cx:x+w/2,cy:y+h/2}}
+
+function selectedObjects(){return objs.filter(o=>sel.has(o.id))}
+function groupBB(A=selectedObjects()){
+  if(!A.length)return null;
+  let bs=A.map(bb),minX=Math.min(...bs.map(b=>b.x)),minY=Math.min(...bs.map(b=>b.y)),maxX=Math.max(...bs.map(b=>b.x+b.w)),maxY=Math.max(...bs.map(b=>b.y+b.h));
+  return{x:minX,y:minY,w:maxX-minX,h:maxY-minY,cx:(minX+maxX)/2,cy:(minY+maxY)/2};
+}
+function boxHandlePoints(b){return[
+  ['nw',{x:b.x,y:b.y}],['n',{x:b.cx,y:b.y}],['ne',{x:b.x+b.w,y:b.y}],
+  ['e',{x:b.x+b.w,y:b.cy}],['se',{x:b.x+b.w,y:b.y+b.h}],['s',{x:b.cx,y:b.y+b.h}],
+  ['sw',{x:b.x,y:b.y+b.h}],['w',{x:b.x,y:b.cy}]
+]}
+function distScreen(a,b){let dx=a.x-b.x,dy=a.y-b.y;return Math.hypot(dx,dy)}
+function handleAtScreen(P){
+  if(tool!=='select'||drag||draw||poly.length)return null;
+  const A=selectedVisible();
+  if(!A.length)return null;
+  const tol=9;
+  if(A.length===1){
+    const o=A[0];
+    if(o.type==='linear'&&o.shape==='line'){
+      let p1=ws({x:o.x1,y:o.y1}),p2=ws({x:o.x2,y:o.y2});
+      if(distScreen(P,p1)<=tol)return{kind:'lineEnd',id:o.id,end:'start'};
+      if(distScreen(P,p2)<=tol)return{kind:'lineEnd',id:o.id,end:'end'};
+    }
+    if(o.type==='draw'){
+      let p1=ws({x:o.x1,y:o.y1}),p2=ws({x:o.x2,y:o.y2});
+      if(distScreen(P,p1)<=tol)return{kind:'lineEnd',id:o.id,end:'start'};
+      if(distScreen(P,p2)<=tol)return{kind:'lineEnd',id:o.id,end:'end'};
+    }
+    if(o.type==='point'){
+      let r=(o.glow||160)*((o.beam||24)/24),hp=ws({x:o.x+r,y:o.y});
+      if(distScreen(P,hp)<=tol+2)return{kind:'pointRadius',id:o.id};
+    }
+  }
+  const b=groupBB(A); if(!b)return null;
+  if(A.every(isRotatable)){let rp=ws({x:b.cx,y:b.y});rp.y-=32;if(distScreen(P,rp)<=tol+3)return{kind:'rotate',ids:A.map(o=>o.id),center:{x:b.cx,y:b.cy}};}
+  for(const [h,p] of boxHandlePoints(b))if(distScreen(P,ws(p))<=tol)return{kind:'resize',handle:h,ids:A.map(o=>o.id)};
+  return null;
+}
+function drawScreenHandle(p,kind='square'){
+  ctx.save();ctx.fillStyle='#e0f2fe';ctx.strokeStyle='#0284c7';ctx.lineWidth=1.3;
+  if(kind==='circle'){ctx.beginPath();ctx.arc(p.x,p.y,5.5,0,Math.PI*2);ctx.fill();ctx.stroke()}
+  else{ctx.beginPath();ctx.rect(p.x-5,p.y-5,10,10);ctx.fill();ctx.stroke()}
+  ctx.restore();
+}
+function drawTransformHandles(){
+  const A=selectedVisible(); if(!A.length)return;
+  ctx.save();ctx.setTransform(dpr,0,0,dpr,0,0);ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over';ctx.filter='none';ctx.setLineDash([]);
+  if(A.length===1){
+    const o=A[0];
+    if(o.type==='linear'&&o.shape==='line'){
+      drawScreenHandle(ws({x:o.x1,y:o.y1}),'circle');drawScreenHandle(ws({x:o.x2,y:o.y2}),'circle');ctx.restore();return;
+    }
+    if(o.type==='draw'){
+      drawScreenHandle(ws({x:o.x1,y:o.y1}),'circle');drawScreenHandle(ws({x:o.x2,y:o.y2}),'circle');ctx.restore();return;
+    }
+    if(o.type==='point'){
+      let r=(o.glow||160)*((o.beam||24)/24),c=ws({x:o.x,y:o.y}),hp=ws({x:o.x+r,y:o.y});
+      ctx.strokeStyle='rgba(56,189,248,.9)';ctx.setLineDash([6,4]);ctx.beginPath();ctx.arc(c.x,c.y,r*view.s,0,Math.PI*2);ctx.stroke();ctx.setLineDash([]);drawScreenHandle(c,'circle');drawScreenHandle(hp,'circle');ctx.restore();return;
+    }
+  }
+  const b=groupBB(A); if(b&&b.w>0&&b.h>0){if(A.every(isRotatable)){let top=ws({x:b.cx,y:b.y}),rp={x:top.x,y:top.y-32};ctx.strokeStyle='#38bdf8';ctx.beginPath();ctx.moveTo(top.x,top.y);ctx.lineTo(rp.x,rp.y);ctx.stroke();drawScreenHandle(rp,'circle')}boxHandlePoints(b).forEach(([h,p])=>drawScreenHandle(ws(p),'square'));}
+  ctx.restore();
+}
+function pointInBox(P,b){return P.x>=b.x&&P.x<=b.x+b.w&&P.y>=b.y&&P.y<=b.y+b.h}
+function mapPt(p,from,to){let sx=from.w?((p.x-from.x)/from.w):0,sy=from.h?((p.y-from.y)/from.h):0;return{x:to.x+sx*to.w,y:to.y+sy*to.h}}
+function applyBoxTransform(o,from,to){
+  if(o.type==='point'){
+    let p=mapPt({x:o.x,y:o.y},from,to),scale=(Math.abs(to.w/from.w)+Math.abs(to.h/from.h))/2;o.x=p.x;o.y=p.y;if(isFinite(scale)&&scale>0)o.glow=Math.max(5,(o.glow||160)*scale);return;
+  }
+  if(o.type==='draw'||(o.type==='linear'&&o.shape==='line')){
+    let p1=mapPt({x:o.x1,y:o.y1},from,to),p2=mapPt({x:o.x2,y:o.y2},from,to);o.x1=p1.x;o.y1=p1.y;o.x2=p2.x;o.y2=p2.y;return;
+  }
+  if(o.points){o.points=o.points.map(p=>mapPt(p,from,to));return;}
+  if('x'in o&&'y'in o&&'w'in o&&'h'in o){let p1=mapPt({x:o.x,y:o.y},from,to),p2=mapPt({x:o.x+o.w,y:o.y+o.h},from,to);o.x=p1.x;o.y=p1.y;o.w=p2.x-p1.x;o.h=p2.y-p1.y;return;}
+  if(o.type==='text'){let p=mapPt({x:o.x,y:o.y},from,to),scale=(Math.abs(to.w/from.w)+Math.abs(to.h/from.h))/2;o.x=p.x;o.y=p.y;if(isFinite(scale)&&scale>0)o.fontSize=Math.max(6,(o.fontSize||24)*scale)}
+}
+function resizeBoxFromDrag(startBox,handle,dx,dy,keepRatio){
+  let l=startBox.x,t=startBox.y,r=startBox.x+startBox.w,b=startBox.y+startBox.h;
+  if(handle.includes('w'))l+=dx;if(handle.includes('e'))r+=dx;if(handle.includes('n'))t+=dy;if(handle.includes('s'))b+=dy;
+  if(keepRatio&&/[ns]/.test(handle)&&/[ew]/.test(handle)){
+    const aspect=(startBox.w||1)/(startBox.h||1),sx=handle.includes('e')?1:-1,sy=handle.includes('s')?1:-1;
+    let aw=Math.max(4,Math.abs(r-l)),ah=Math.max(4,Math.abs(b-t));
+    if(aw/ah>aspect)aw=ah*aspect;else ah=aw/aspect;
+    const ax=sx>0?startBox.x:startBox.x+startBox.w,ay=sy>0?startBox.y:startBox.y+startBox.h;
+    if(sx>0){l=ax;r=ax+aw}else{r=ax;l=ax-aw}
+    if(sy>0){t=ay;b=ay+ah}else{b=ay;t=ay-ah}
+  }
+  let x=Math.min(l,r),y=Math.min(t,b),w=Math.max(4,Math.abs(r-l)),h=Math.max(4,Math.abs(b-t));return{x,y,w,h,cx:x+w/2,cy:y+h/2};
+}
+function applyResizeDrag(w,keepRatio){
+  const dx=w.x-drag.start.x,dy=w.y-drag.start.y,to=resizeBoxFromDrag(drag.startBox,drag.handle.handle,dx,dy,keepRatio);
+  drag.before.forEach(b=>{let o=objs.find(x=>x.id===b.id);if(!o)return;Object.assign(o,cp(b));applyBoxTransform(o,drag.startBox,to)})
+}
+function applyLineEndDrag(w,shift){
+  const b=drag.before[0],o=objs.find(x=>x.id===b.id);if(!o)return;Object.assign(o,cp(b));
+  const fixed=drag.handle.end==='start'?{x:b.x2,y:b.y2}:{x:b.x1,y:b.y1};let p=w;if(shift)p=constrain(fixed,w);
+  if(drag.handle.end==='start'){o.x1=p.x;o.y1=p.y}else{o.x2=p.x;o.y2=p.y}
+}
+function applyPointRadiusDrag(w){
+  const b=drag.before[0],o=objs.find(x=>x.id===b.id);if(!o)return;Object.assign(o,cp(b));let r=Math.hypot(w.x-o.x,w.y-o.y),beam=(o.beam||24)/24;o.glow=Math.max(10,Math.min(600,r/(beam||1)));
+}
+function applyRotateDrag(w,shift){
+  const c=drag.handle.center||drag.center||drag.startBox;
+  const a0=Math.atan2(drag.start.y-c.y,drag.start.x-c.x),a1=Math.atan2(w.y-c.y,w.x-c.x);
+  let deg=(a1-a0)*180/Math.PI;
+  if(shift)deg=Math.round(deg/15)*15;
+  drag.before.forEach(b=>{let o=objs.find(x=>x.id===b.id);if(!o)return;Object.assign(o,cp(b));o.rotation=((+b.rotation||0)+deg)%360});
+}
+
+function copySelected(){const A=selectedObjects();if(!A.length)return false;clipboard=A.map(cp);pasteCount=0;toastMsg(`已复制 ${A.length} 个对象`);return true}
+function pasteClipboard(){if(!clipboard||!clipboard.length)return false;pasteCount++;let ids=[],d=22*pasteCount;clipboard.forEach(src=>{let n=cp(src);n.id=uid();offset(n,d,d);objs.push(n);ids.push(n.id)});sel=new Set(ids);props();render();toastMsg(`已粘贴 ${ids.length} 个对象`);return true}
+function drawSelection(o){let b=bb(o),p=ws({x:b.x,y:b.y});ctx.save();ctx.setTransform(dpr,0,0,dpr,0,0);ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over';ctx.filter='none';ctx.strokeStyle='#38bdf8';ctx.setLineDash([6,4]);ctx.lineWidth=1.2;ctx.strokeRect(p.x,p.y,b.w*view.s,b.h*view.s);ctx.setLineDash([]);ctx.restore()}
+function render(){drawBg();ctx.save();ctx.setTransform(dpr,0,0,dpr,0,0);ctx.translate(view.x,view.y);ctx.scale(view.s,view.s);ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over';ctx.filter='none';objs.forEach(drawObj);drawPreview();drawDragBox();ctx.restore();ctx.setTransform(dpr,0,0,dpr,0,0);ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over';ctx.filter='none';objs.filter(o=>sel.has(o.id)&&!isHidden(o)).forEach(drawSelection);drawTransformHandles();list();status()}
+function drawPreview(){if(!preview)return;ctx.save();ctx.strokeStyle='#38bdf8';ctx.fillStyle='rgba(56,189,248,.12)';ctx.lineWidth=2/view.s;ctx.setLineDash([8/view.s,5/view.s]);if(preview.kind==='line'){ctx.beginPath();ctx.moveTo(preview.x1,preview.y1);ctx.lineTo(preview.x2,preview.y2);ctx.stroke()}else if(preview.kind==='rect'){ctx.strokeRect(preview.x,preview.y,preview.w,preview.h);ctx.fillRect(preview.x,preview.y,preview.w,preview.h)}else if(preview.kind==='ellipse'){ctx.beginPath();ctx.ellipse(preview.x+preview.w/2,preview.y+preview.h/2,Math.abs(preview.w/2),Math.abs(preview.h/2),0,0,Math.PI*2);ctx.fill();ctx.stroke()}else if(preview.kind==='polygon'){ctx.beginPath();preview.points.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));ctx.closePath();ctx.fill();ctx.stroke()}else if(preview.kind==='poly'){ctx.beginPath();preview.points.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));ctx.stroke()}ctx.restore()}
+function drawDragBox(){if(!drag||drag.mode!=='box'||!drag.cur)return;let a=drag.start,b=drag.cur,x=Math.min(a.x,b.x),y=Math.min(a.y,b.y),w=Math.abs(a.x-b.x),h=Math.abs(a.y-b.y);ctx.save();ctx.strokeStyle='#38bdf8';ctx.fillStyle='rgba(56,189,248,.08)';ctx.lineWidth=1.5/view.s;ctx.setLineDash([8/view.s,5/view.s]);ctx.fillRect(x,y,w,h);ctx.strokeRect(x,y,w,h);ctx.restore()}
+function targetAt(p){for(let i=objs.length-1;i>=0;i--){let o=objs[i];if(isHidden(o)||isLocked(o))continue;let b=bb(o);if(p.x>=b.x-6/view.s&&p.x<=b.x+b.w+6/view.s&&p.y>=b.y-6/view.s&&p.y<=b.y+b.h+6/view.s)return o}return null}
+function defaultFor(t){let key=t;if(t==='polylineLight')key='polylineLight';let o=Object.assign(cp(defaultP[key]||{}),cp(useLast&&last[key]?last[key]:{}));normalizeLegacy(o);return o}function finalize(o){o.id=uid();o.rotation=o.rotation||0;o.name=label(o);objs.push(o);sel=new Set([o.id]);saveLast(o);props();render()}function label(o){if(o.type==='point')return'点光源';if(o.type==='linear')return({line:'直线灯带',polyline:'连续灯带',rect:'矩形灯带',ellipse:'圆/椭圆灯带',polygon:'多边形灯带'}[o.shape]||'线性灯');if(o.type==='areaLight')return o.areaShape==='triangle'?'区域光·三角形':o.areaShape==='hex'?'区域光·六边形':o.shape==='ellipse'||o.areaShape==='circle'?'区域光·圆形':'区域光·矩形';if(o.type==='draw')return o.arrow&&o.arrow!=='none'?'箭头':'普通线';if(o.type==='text')return'文字';if(o.type==='normalArea')return o.areaShape==='triangle'?'普通区域·三角形':o.areaShape==='hex'?'普通区域·六边形':o.shape==='ellipse'||o.areaShape==='circle'?'普通区域·圆形':'普通区域·矩形';return'普通区域'}
+function constrain(a,b){let dx=b.x-a.x,dy=b.y-a.y,ang=Math.atan2(dy,dx),len=Math.hypot(dx,dy),snap=Math.round(ang/(Math.PI/4))*Math.PI/4;return{x:a.x+Math.cos(snap)*len,y:a.y+Math.sin(snap)*len}}
+cvs.onmousedown=e=>{
+  menu.style.display='none';let P=ep(e),w=sw(P);if(e.button!==0)return;
+  if(e.code==='Space'||tool==='pan'){drag={mode:'pan',sx:P.x,sy:P.y,vx:view.x,vy:view.y};updateCursor();return}
+  if(tool==='select'){
+    let h=handleAtScreen(P);
+    if(h){drag={mode:h.kind,handle:h,start:w,screen:P,ids:[...sel],before:selectedObjects().map(cp),startBox:groupBB()};updateCursor();render();return}
+    let t=targetAt(w);
+    if(t){if(e.ctrlKey){sel.has(t.id)?sel.delete(t.id):sel.add(t.id)}else if(!sel.has(t.id))sel=new Set([t.id]);drag={mode:'move',start:w,screen:P,ids:[...sel],before:selectedObjects().map(cp)};props();render()}
+    else{sel.clear();drag={mode:'box',start:w,cur:w};props();render()}
+    return;
+  }
+  if(tool==='point'){let o=defaultFor('point');Object.assign(o,{x:w.x,y:w.y});finalize(o);return}
+  if(['lineLight','line','arrow'].includes(tool)){draw={kind:'line',tool,start:w};preview={kind:'line',x1:w.x,y1:w.y,x2:w.x,y2:w.y};return}
+  if(['rectLight','ellipseLight','areaRect','areaCircle','areaTriangle','areaHex','areaLightRect','areaLightCircle','areaLightTriangle','areaLightHex'].includes(tool)){draw={kind:'rect',tool,start:w};preview=makePreview(tool,w,w);return}
+  if(['polyLight','polylineLight'].includes(tool)){if(e.detail>1&&poly.length){finishPoly();return}let pt=w;if(e.shiftKey&&poly.length)pt=constrain(poly[poly.length-1],w);poly.push(pt);document.getElementById('polybar').style.display='block';preview={kind:'poly',points:poly.concat([pt])};render();return}
+  if(tool==='text'){let o=defaultFor('text');Object.assign(o,{x:w.x,y:w.y,text:prompt('文字内容','文字')||'文字'});finalize(o);return}
+};
+cvs.onmousemove=e=>{
+  let P=ep(e),w=sw(P);
+  if(!drag&&!draw&&!poly.length&&tool==='select'){hoverHandle=handleAtScreen(P);hoverTarget=hoverHandle?null:targetAt(w)}else if(!drag){hoverHandle=null;hoverTarget=null}
+  updateCursor();
+  if(drag){
+    if(drag.mode==='pan'){view.x=drag.vx+(P.x-drag.sx);view.y=drag.vy+(P.y-drag.sy)}
+    else if(drag.mode==='move'){let dx=w.x-drag.start.x,dy=w.y-drag.start.y;drag.before.forEach(b=>{let o=objs.find(x=>x.id===b.id);Object.assign(o,cp(b));offset(o,dx,dy)})}
+    else if(drag.mode==='resize'){applyResizeDrag(w,e.shiftKey)}
+    else if(drag.mode==='lineEnd'){applyLineEndDrag(w,e.shiftKey)}
+    else if(drag.mode==='pointRadius'){applyPointRadiusDrag(w)}
+    else if(drag.mode==='rotate'){applyRotateDrag(w,e.shiftKey)}
+    else if(drag.mode==='box'){drag.cur=w}
+    render();return;
+  }
+  if(draw){let end=e.shiftKey&&draw.kind==='line'?constrain(draw.start,w):w;if(draw.kind==='line')preview={kind:'line',x1:draw.start.x,y1:draw.start.y,x2:end.x,y2:end.y};else preview=makePreview(draw.tool,draw.start,end);render();return}
+  if(poly.length){let pt=e.shiftKey?constrain(poly[poly.length-1],w):w;preview={kind:'poly',points:poly.concat([pt])};render();return}
+};
+cvs.onmouseleave=()=>{hoverTarget=null;hoverHandle=null;if(!drag)updateCursor()};
+cvs.onmouseup=e=>{
+  let w=sw(ep(e));
+  if(drag){
+    if(drag.mode==='box'){
+      let a=drag.start,b=drag.cur,x=Math.min(a.x,b.x),y=Math.min(a.y,b.y),w0=Math.abs(a.x-b.x),h0=Math.abs(a.y-b.y);
+      sel=new Set(objs.filter(o=>!isHidden(o)&&!isLocked(o)).filter(o=>{let r=bb(o);return r.x>=x&&r.y>=y&&r.x+r.w<=x+w0&&r.y+r.h<=y+h0}).map(o=>o.id));props();
+    }else if(['move','resize','lineEnd','pointRadius','rotate'].includes(drag.mode)){
+      selectedObjects().forEach(saveLast);props();
+    }
+    drag=null;updateCursor();render();return;
+  }
+  if(draw){
+    let end=e.shiftKey&&draw.kind==='line'?constrain(draw.start,w):w;
+    let st=draw.start,t=draw.tool,o;
+    if(t==='lineLight'){
+      o=defaultFor('lineLight');Object.assign(o,{shape:'line',x1:st.x,y1:st.y,x2:end.x,y2:end.y});
+    }else if(t==='line'||t==='arrow'){
+      o=defaultFor(t);Object.assign(o,{x1:st.x,y1:st.y,x2:end.x,y2:end.y});
+    }else if(t==='rectLight'){
+      o=defaultFor('rectLight');Object.assign(o,{shape:'rect',x:st.x,y:st.y,w:end.x-st.x,h:end.y-st.y});
+    }else if(t==='ellipseLight'){
+      o=defaultFor('ellipseLight');Object.assign(o,{shape:'ellipse',x:st.x,y:st.y,w:end.x-st.x,h:end.y-st.y});
+    }else if(isAreaTool(t)){
+      o=makeAreaLightObject(t,st,end);
+    }else if(isNormalAreaTool(t)){
+      o=makeNormalAreaObject(t,st,end);
+    }
+    let ok=false;
+    if(o){
+      if('x1'in o)ok=Math.hypot(o.x2-o.x1,o.y2-o.y1)>3;
+      else if(o.points){let r=bb(o);ok=r.w>3&&r.h>3}
+      else ok=Math.abs(o.w)>3&&Math.abs(o.h)>3;
+    }
+    draw=null;preview=null;
+    if(ok)finalize(o);else render();
+  }
+};
+cvs.ondblclick=e=>{if(poly.length)finishPoly()};cvs.oncontextmenu=e=>{e.preventDefault();if(poly.length){finishPoly();return}showMenu(ep(e))};
+function finishPoly(){
+if(poly.length){
+  let cleaned=[];
+  poly.forEach(p=>{let last=cleaned[cleaned.length-1];if(!last||Math.hypot(p.x-last.x,p.y-last.y)>2)cleaned.push(p)});
+  poly=cleaned;
+}
+if(poly.length<2){poly=[];preview=null;document.getElementById('polybar').style.display='none';render();return}
+let t=tool,o=defaultFor(t);
+if(t==='polylineLight'){
+  Object.assign(o,{shape:'polyline',points:poly.slice()});
+}else{
+  if(poly.length<3){poly=[];preview=null;document.getElementById('polybar').style.display='none';render();return}
+  Object.assign(o,{shape:'polygon',points:poly.slice()});
+}
+poly=[];preview=null;document.getElementById('polybar').style.display='none';finalize(o)}
+function offset(o,dx,dy){if('x'in o)o.x+=dx;if('y'in o)o.y+=dy;if('x1'in o){o.x1+=dx;o.y1+=dy;o.x2+=dx;o.y2+=dy}if(o.points)o.points.forEach(p=>{p.x+=dx;p.y+=dy})}function angleOf(o){let b=bb(o);if(o.shape==='line')return Math.atan2(o.y2-o.y1,o.x2-o.x1);if(o.shape==='polyline'&&o.points.length>1){let a=o.points[0],b2=o.points.at(-1);return Math.atan2(b2.y-a.y,b2.x-a.x)}return 0}function setAngle(o,a){let b=bb(o),c={x:b.cx,y:b.cy},old=angleOf(o),d=a-old,rot=p=>{let x=p.x-c.x,y=p.y-c.y;return{x:c.x+x*Math.cos(d)-y*Math.sin(d),y:c.y+x*Math.sin(d)+y*Math.cos(d)}};if(o.shape==='line'){let p1=rot({x:o.x1,y:o.y1}),p2=rot({x:o.x2,y:o.y2});o.x1=p1.x;o.y1=p1.y;o.x2=p2.x;o.y2=p2.y}else if(o.shape==='polyline'){o.points=o.points.map(rot)}}
+function showMenu(P){
+  let A=objs.filter(o=>sel.has(o.id));
+  let buttons=[
+    {icon:'⧉',act:'copy',title:'复制'},
+    {icon:'🗑',act:'del',title:'删除'},
+    {sep:true},
+    {icon:'⤒',act:'top',title:'置顶'},
+    {icon:'↑',act:'up',title:'上移一层'},
+    {icon:'↓',act:'down',title:'下移一层'},
+    {icon:'⤓',act:'bottom',title:'置底'},
+    {sep:true},
+    {icon:'⇤',act:'l',title:'左对齐'},
+    {icon:'↔',act:'c',title:'水平居中'},
+    {icon:'⇥',act:'r',title:'右对齐'},
+    {icon:'⇧',act:'t',title:'上对齐'},
+    {icon:'↕',act:'m',title:'垂直居中'},
+    {icon:'⇩',act:'b',title:'下对齐'},
+    {sep:true},
+    {icon:'⇆',act:'dh',title:'横向分布'},
+    {icon:'⇅',act:'dv',title:'纵向分布'},
+    {icon:'↺',act:'rl',title:'左旋转'},
+    {icon:'↻',act:'rr',title:'右旋转'}
+  ];
+  menu.innerHTML=buttons.map(x=>x.sep?'<span class="sep"></span>':`<button title="${x.title}" aria-label="${x.title}" data-a="${x.act}">${x.icon}</button>`).join('');
+  menu.style.left=P.x+'px';menu.style.top=P.y+'px';menu.style.display='flex';
+  menu.querySelectorAll('button').forEach(b=>b.onclick=()=>{menu.style.display='none';act(b.dataset.a)});
+}
+function act(a){let A=objs.filter(o=>sel.has(o.id));if(a==='copy')return copySelected();if(a==='del')return deleteSelected();if(a==='top')return moveLayer('top');if(a==='up')return moveLayer('up');if(a==='down')return moveLayer('down');if(a==='bottom')return moveLayer('bottom');if(['l','c','r','t','m','b'].includes(a))align(a,A);if(a==='dh'||a==='dv')distb(a,A);if(a==='rl'||a==='rr')A.forEach(o=>{if(isRotatable(o))o.rotation=(+o.rotation||0)+(a==='rr'?15:-15)});render();props()}
+function align(a,A){let bs=A.map(o=>({o,b:bb(o)})),minX=Math.min(...bs.map(x=>x.b.x)),maxX=Math.max(...bs.map(x=>x.b.x+x.b.w)),minY=Math.min(...bs.map(x=>x.b.y)),maxY=Math.max(...bs.map(x=>x.b.y+x.b.h)),cx=(minX+maxX)/2,cy=(minY+maxY)/2;bs.forEach(({o,b})=>{let dx=0,dy=0;if(a==='l')dx=minX-b.x;if(a==='r')dx=maxX-b.x-b.w;if(a==='c')dx=cx-b.cx;if(a==='t')dy=minY-b.y;if(a==='b')dy=maxY-b.y-b.h;if(a==='m')dy=cy-b.cy;offset(o,dx,dy)})}function distb(a,A){let bs=A.map(o=>({o,b:bb(o)})).sort((x,y)=>a==='dh'?x.b.cx-y.b.cx:x.b.cy-y.b.cy),st=a==='dh'?bs[0].b.cx:bs[0].b.cy,en=a==='dh'?bs.at(-1).b.cx:bs.at(-1).b.cy,step=(en-st)/(bs.length-1);bs.forEach((it,i)=>{let d=st+step*i-(a==='dh'?it.b.cx:it.b.cy);offset(it.o,a==='dh'?d:0,a==='dv'?d:0)})}
+function props(){let A=objs.filter(o=>sel.has(o.id));document.getElementById('propTitle').textContent=A.length?`已选 ${A.length} 个对象`:'未选中对象';let p=document.getElementById('props');if(!A.length){p.innerHTML='选择对象后显示属性。';presetList(null);return}let o=A[0];p.innerHTML=propHtml(o,A.length);bindProps(A);presetList(o);render()}function row(l,h){return`<div class="form"><label>${l}</label>${h}</div>`}function rng(id,v,min,max){return`<div class="rng"><input id="${id}" type="range" min="${min}" max="${max}" value="${Math.round(v)}"><span id="${id}V">${Math.round(v)}</span></div>`}function selCtl(id,opts,v){return`<select id="${id}">${opts.map(o=>`<option value="${o[0]}" ${String(o[0])===String(v)?'selected':''}>${o[1]}</option>`).join('')}</select>`}
+function propHtml(o,n){let multi=n>1?'<div class="small">多选状态：修改会批量应用到具有该属性的对象。</div>':'';let common=(n===1?row('名称',`<input id="p_name" value="${(o.name||'').replace(/"/g,'&quot;')}">`):'')+(isRotatable(o)?row('旋转角度',`<input id="p_rotation" type="number" value="${Math.round(+o.rotation||0)}">`):'');if(o.type==='point')return common+multi+row('光束角',selCtl('p_beam',[[15,'15° 窄光束'],[24,'24° 常规'],[36,'36° 宽光束']],o.beam))+light(o,true);if(o.type==='linear'){normalizeLegacy(o);let em=(o.shape==='line'||o.shape==='polyline')?[["left","左侧发光"],["right","右侧发光"],["both","双侧发光"]]:[["inside","内发光"],["outside","外发光"],["both","双向发光"]];return common+multi+row('发光方式',selCtl('p_emission',em,o.emission))+light(o,false)+row('灯带宽度',rng('p_width',o.width,1,40))+row('发光范围',rng('p_glow',o.glow,10,320))+row('本体线',selCtl('p_showCore',[[true,'显示'],[false,'隐藏']],o.showCore))+((o.shape==='line'||o.shape==='polyline')?row('角度',`<input id="p_angle" type="number" value="${Math.round(angleOf(o)*180/Math.PI)}">`):'')}if(o.type==='areaLight'){let shapeName=o.areaShape==='triangle'?'三角形':o.areaShape==='hex'?'六边形':(o.shape==='ellipse'||o.areaShape==='circle')?'圆形':'矩形';return common+multi+row('区域形状',`<div class="small">${shapeName}</div>`)+row('区域光',selCtl('p_fillMode',[["uniform","均匀发光"],["linear","线性渐变"],["radial","径向渐变"],["directional","方向渐变"]],o.fillMode))+light(o,false)+row('渐变方向',rng('p_dir',o.dir||0,0,360))}if(o.type==='draw')return common+multi+drawProps(o);if(o.type==='text')return common+multi+row('文字',`<textarea id="p_text">${o.text}</textarea>`)+row('颜色',`<input id="p_color" type="color" value="${o.color}">`)+row('字号',rng('p_fontSize',o.fontSize,8,96))+row('加粗',selCtl('p_bold',[[false,'否'],[true,'是']],o.bold))+row('透明度',rng('p_opacity',(o.opacity||1)*100,0,100));if(o.type==='normalArea'){let shapeName=o.areaShape==='triangle'?'三角形':o.areaShape==='hex'?'六边形':(o.shape==='ellipse'||o.areaShape==='circle')?'圆形':'矩形';return common+multi+row('区域形状',`<div class="small">${shapeName}</div>`)+row('填充',selCtl('p_fillEnabled',[[true,'显示'],[false,'无色']],o.fillEnabled!==false))+row('填充色',`<input id="p_fill" type="color" value="${o.fill||'#38bdf8'}">`)+row('边框',selCtl('p_strokeEnabled',[[true,'显示'],[false,'无色']],o.strokeEnabled!==false))+row('边框色',`<input id="p_stroke" type="color" value="${o.stroke||o.fill||'#38bdf8'}">`)+row('线宽',rng('p_lineWidth',o.lineWidth,0,24))+row('线型',selCtl('p_lineStyle',[["solid","实线"],["dash","虚线"],["dot","点线"]],o.lineStyle))+row('柔化',rng('p_soft',o.soft||0,0,220))+row('透明度',rng('p_opacity',(o.opacity||.22)*100,0,100))}return''}
+function light(o,point){return row('色温预设',selCtl('p_tempPreset',[[2700,'2700K 暖黄'],[3000,'3000K 暖白'],[3500,'3500K 自然暖'],[4000,'4000K 中性'],[6000,'6000K 冷白'],['custom','自定义']],[2700,3000,3500,4000,6000].includes(+o.temp)?o.temp:'custom'))+row('色温K',rng('p_temp',o.temp,1000,12000))+row('亮度',rng('p_brightness',o.brightness,0,240))+(point?row('中心强度',rng('p_center',o.center,0,100)):'')+(point?row('光晕范围',rng('p_glow',o.glow,10,360)):'')+row('柔化',rng('p_soft',o.soft,0,220))+row('透明度',rng('p_opacity',(o.opacity||.8)*100,0,100))}function drawProps(o){return row('颜色',`<input id="p_color" type="color" value="${o.color}">`)+row('线宽',rng('p_lineWidth',o.lineWidth,1,24))+row('线型',selCtl('p_lineStyle',[["solid","实线"],["dash","虚线"],["dot","点线"]],o.lineStyle))+row('箭头',selCtl('p_arrow',[["none","无"],["end","终点"],["start","起点"],["both","双向"]],o.arrow))+row('透明度',rng('p_opacity',(o.opacity||1)*100,0,100))}
+function bindProps(A){let map=[['p_name','name'],['p_rotation','rotation','num'],['p_beam','beam','num'],['p_emission','emission'],['p_temp','temp','num'],['p_brightness','brightness','num'],['p_center','center','num'],['p_glow','glow','num'],['p_soft','soft','num'],['p_opacity','opacity','pct'],['p_width','width','num'],['p_showCore','showCore','bool'],['p_fillMode','fillMode'],['p_dir','dir','num'],['p_color','color'],['p_lineWidth','lineWidth','num'],['p_lineStyle','lineStyle'],['p_arrow','arrow'],['p_text','text'],['p_fontSize','fontSize','num'],['p_bold','bold','bool'],['p_fill','fill'],['p_stroke','stroke'],['p_fillEnabled','fillEnabled','bool'],['p_strokeEnabled','strokeEnabled','bool']];map.forEach(([i,k,t])=>{let e=document.getElementById(i);if(!e)return;e.oninput=()=>{let v=e.value;if(t==='num')v=+v;if(t==='pct')v=+v/100;if(t==='bool')v=v==='true';A.forEach(o=>{if(k==='name'||k==='rotation'||k in o)o[k]=v});let vv=document.getElementById(i+'V');if(vv)vv.textContent=e.value;A.forEach(saveLast);render()}});let tp=document.getElementById('p_tempPreset');if(tp)tp.onchange=()=>{if(tp.value!=='custom'){A.forEach(o=>{'temp'in o&&(o.temp=+tp.value)});props();render()}};let an=document.getElementById('p_angle');if(an)an.oninput=()=>{let r=+an.value*Math.PI/180;A.forEach(o=>setAngle(o,r));render()}}
+function saveLast(o){normalizeLegacy(o);let key=o.type==='point'?'point':o.type==='linear'?(o.shape==='line'?'lineLight':o.shape==='polyline'?'polylineLight':o.shape==='rect'?'rectLight':o.shape==='ellipse'?'ellipseLight':'polyLight'):o.type==='areaLight'?'areaLight':o.type==='text'?'text':o.type==='normalArea'?'area':o.type==='draw'?(o.arrow&&o.arrow!=='none'?'arrow':'line'):null;if(!key)return;let c=cp(o);['id','name','x','y','x1','y1','x2','y2','w','h','points'].forEach(k=>delete c[k]);last[key]=Object.assign(last[key]||{},c);localStorage.lpLastV5=JSON.stringify(last)}
+function loadPresets(){let sys=[{id:'sys1',type:'point',name:'系统·点光源24°柔光',data:{...defaultP.point,beam:24,temp:3000}},{id:'sys2',type:'point',name:'系统·点光源36°泛光',data:{...defaultP.point,beam:36,center:14,glow:250}},{id:'sys3',type:'linear',name:'系统·直线灯带2700K',data:{...defaultP.lineLight,temp:2700}},{id:'sys4',type:'linear',name:'系统·矩形外发光',data:{...defaultP.rectLight,emission:'outside'}},{id:'sys5',type:'areaLight',name:'系统·暖光区域增强',data:{...defaultP.areaLight}}];return sys.concat(JSON.parse(localStorage.lpPresetsV5||'[]'))}function ptype(o){return!o?'none':o.type==='linear'?'linear':o.type}function presetList(o){let s=document.getElementById('preset'),t=ptype(o),L=presets.filter(p=>p.type===t);s.innerHTML=L.map(p=>`<option value="${p.id}">${p.name}</option>`).join('')||'<option>无</option>'}document.getElementById('preset').onchange=e=>{let p=presets.find(x=>x.id===e.target.value),A=objs.filter(o=>sel.has(o.id));if(!p)return;A.forEach(o=>Object.keys(p.data).forEach(k=>{if(k in o)o[k]=cp(p.data[k])}));props();render()};document.getElementById('useLast').onchange=e=>useLast=e.target.checked;document.getElementById('savePreset').onclick=()=>{let A=objs.filter(o=>sel.has(o.id));if(!A.length)return toastMsg('先选中对象');let name=prompt('预设名称','我的发光预设');if(!name)return;let data=cp(A[0]);['id','name','x','y','x1','y1','x2','y2','w','h','points'].forEach(k=>delete data[k]);presets.push({id:'u'+Date.now(),type:ptype(A[0]),name,data});localStorage.lpPresetsV5=JSON.stringify(presets.filter(p=>!p.id.startsWith('sys')));presetList(A[0]);toastMsg('已保存预设')};document.getElementById('updatePreset').onclick=()=>toastMsg('系统预设不可更新，请保存为新预设');document.getElementById('resetDefault').onclick=()=>{let A=objs.filter(o=>sel.has(o.id));A.forEach(o=>{let key=o.type==='point'?'point':o.type==='linear'?(o.shape==='line'?'lineLight':o.shape==='polyline'?'polylineLight':o.shape==='rect'?'rectLight':o.shape==='ellipse'?'ellipseLight':'polyLight'):o.type==='areaLight'?'areaLight':o.type==='normalArea'?'area':null;if(key)Object.assign(o,cp(defaultP[key]))});props();render()};
+function selectedInOrder(){return objs.filter(o=>sel.has(o.id))}
+function moveLayer(mode){let ids=new Set([...sel]);if(!ids.size)return toastMsg('先选择对象');if(mode==='top'){let m=objs.filter(o=>ids.has(o.id));objs=objs.filter(o=>!ids.has(o.id)).concat(m)}else if(mode==='bottom'){let m=objs.filter(o=>ids.has(o.id));objs=m.concat(objs.filter(o=>!ids.has(o.id)))}else if(mode==='up'){for(let i=objs.length-2;i>=0;i--)if(ids.has(objs[i].id)&&!ids.has(objs[i+1].id))[objs[i],objs[i+1]]=[objs[i+1],objs[i]]}else if(mode==='down'){for(let i=1;i<objs.length;i++)if(ids.has(objs[i].id)&&!ids.has(objs[i-1].id))[objs[i],objs[i-1]]=[objs[i-1],objs[i]]}render()}
+function createGroupFromSelection(){if(!sel.size)return toastMsg('先选择对象');let name=prompt('对象组名称','对象组 '+(groups.length+1));if(!name)return;let g={id:gid(),name,visible:true,locked:false,objectIds:[...sel]};groups.push(g);objs.forEach(o=>{if(sel.has(o.id))o.groupId=g.id});render();toastMsg('已创建对象组')}
+function chooseGroup(){if(!groups.length)return null;let txt=groups.map((g,i)=>`${i+1}. ${g.name}`).join('\n'),v=prompt('输入组序号：\n'+txt,'1');let i=parseInt(v,10)-1;return groups[i]||null}
+function addSelectedToGroup(){if(!sel.size)return toastMsg('先选择对象');let g=chooseGroup();if(!g)return;objs.forEach(o=>{if(sel.has(o.id))o.groupId=g.id});g.objectIds=[...new Set(g.objectIds.concat([...sel]))];render();toastMsg('已加入对象组')}
+function removeSelectedFromGroup(){if(!sel.size)return toastMsg('先选择对象');objs.forEach(o=>{if(sel.has(o.id))o.groupId=null});groups.forEach(g=>g.objectIds=g.objectIds.filter(id=>!sel.has(id)));render();toastMsg('已移出对象组')}
+function renameGroup(id){let g=groups.find(x=>x.id===id);if(!g)return;let n=prompt('组名称',g.name);if(n){g.name=n;render()}}
+function toggleGroupVisible(id){let g=groups.find(x=>x.id===id);if(!g)return;g.visible=!g.visible;render()}
+function toggleGroupLock(id){let g=groups.find(x=>x.id===id);if(!g)return;g.locked=!g.locked;render()}
+function toggleGroupCollapsed(id){let g=groups.find(x=>x.id===id);if(!g)return;g.collapsed=!g.collapsed;render()}
+function selectGroup(id){let g=groups.find(x=>x.id===id);if(!g)return;sel=new Set(objs.filter(o=>o.groupId===id).map(o=>o.id));props();render()}
+function esc(s){return String(s||'').replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]))}
+function list(){normalizeGroups();let l=document.getElementById('objList');let html='';groups.forEach(g=>{let children=objs.filter(o=>o.groupId===g.id);html+=`<div class="layerGroup"><div class="layerGroupHead" data-gsel="${g.id}"><button class="mini" data-gact="collapse" data-gid="${g.id}" title="展开/折叠">${g.collapsed?'▸':'▾'}</button><button class="mini" data-gact="vis" data-gid="${g.id}" title="显示/隐藏">${g.visible?'👁':'🚫'}</button><button class="mini" data-gact="lock" data-gid="${g.id}" title="锁定/解锁">${g.locked?'🔒':'🔓'}</button><span class="gname">${esc(g.name)} (${children.length})</span><button class="mini" data-gact="rename" data-gid="${g.id}" title="改名">✎</button></div>`;if(!g.collapsed){children.slice().reverse().forEach(o=>{html+=`<div class="item layerChild ${sel.has(o.id)?'sel':''} ${g.locked?'locked':''} ${!g.visible?'hidden':''}" data-id="${o.id}"><span>${esc(o.name||o.type)}</span><span>${sel.has(o.id)?'✓':''}</span></div>`})}html+='</div>'});let un=objs.filter(o=>!o.groupId);if(un.length){html+='<div class="layerUngrouped">';un.slice().reverse().forEach((o,i)=>{html+=`<div class="item ${sel.has(o.id)?'sel':''}" data-id="${o.id}"><span>${objs.indexOf(o)+1}. ${esc(o.name||o.type)}</span><span>${sel.has(o.id)?'✓':''}</span></div>`});html+='</div>'}l.innerHTML=html||'<div class="small">暂无对象</div>';l.querySelectorAll('.item[data-id]').forEach(e=>e.onclick=(ev)=>{let oid=e.dataset.id;if(ev.ctrlKey){sel.has(oid)?sel.delete(oid):sel.add(oid)}else sel=new Set([oid]);props();render()});l.querySelectorAll('[data-gsel]').forEach(e=>e.onclick=(ev)=>{if(ev.target.closest('button'))return;selectGroup(e.dataset.gsel)});l.querySelectorAll('[data-gact]').forEach(b=>b.onclick=(ev)=>{ev.stopPropagation();let id=b.dataset.gid,a=b.dataset.gact;if(a==='collapse')toggleGroupCollapsed(id);else if(a==='vis')toggleGroupVisible(id);else if(a==='lock')toggleGroupLock(id);else if(a==='rename')renameGroup(id)})}
+function status(){document.getElementById('zoom').textContent=Math.round(view.s*100)+'%';document.getElementById('status').textContent=(bg.img?'已上传图纸':'未上传图纸')+' · 当前工具：'+toolLabel(tool)+(sel.size?` · 已选 ${sel.size}`:'')}
+window.onkeydown=handleShortcutKey;document.getElementById('pngBtn').onclick=()=>{let old=cp([...sel]);sel.clear();render();let a=document.createElement('a');a.download='灯光彩平图.png';a.href=cvs.toDataURL('image/png');a.click();sel=new Set(old);render()};document.getElementById('jsonBtn').onclick=()=>{let data={version:'xitie-layout-ai-reserved',bg:{url:bg.url,w:bg.w,h:bg.h},view,objects:objs,groups,dark:document.getElementById('dark').value,bgop:document.getElementById('bgop').value};let blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='灯光彩平图.json';a.click()};document.getElementById('jsonIn').onchange=e=>{let f=e.target.files[0],r=new FileReader();r.onload=ev=>{let data=JSON.parse(ev.target.result);objs=data.objects||[];groups=data.groups||[];normalizeGroups();view=data.view||view;document.getElementById('dark').value=data.dark||55;document.getElementById('bgop').value=data.bgop||100;if(data.bg?.url){let im=new Image();im.onload=()=>{bg={img:im,url:data.bg.url,w:data.bg.w||im.naturalWidth,h:data.bg.h||im.naturalHeight};render()};im.src=data.bg.url}else render()};if(f)r.readAsText(f)};
+function xitieModal(title,html){
+  let m=document.getElementById('xitieModalMask');
+  if(!m){
+    m=document.createElement('div');m.id='xitieModalMask';m.className='xitieModalMask';
+    m.innerHTML='<div class="xitieModal"><div class="xitieModalHead"><h2 id="xitieModalTitle"></h2><button class="xitieModalClose" id="xitieModalClose">×</button></div><div class="xitieModalBody" id="xitieModalBody"></div></div>';
+    document.querySelector('.canvasBox').appendChild(m);
+    m.addEventListener('click',e=>{if(e.target===m)m.style.display='none'});
+    m.querySelector('#xitieModalClose').onclick=()=>m.style.display='none';
+  }
+  m.querySelector('#xitieModalTitle').textContent=title;
+  m.querySelector('#xitieModalBody').innerHTML=html;
+  m.style.display='flex';
+}
+
+function escAttr(s){return esc(s).replace(/"/g,'&quot;').replace(/'/g,'&#39;')}
+const shortcutDefaults=[
+  {id:'tool.select',cat:'基础',name:'选择工具',keys:'V',tool:'select',panel:'light'},
+  {id:'tool.pan',cat:'基础',name:'手形 / 平移',keys:'Space',tool:'pan',panel:'light'},
+  {id:'tool.point',cat:'灯光',name:'点光源',keys:'P',tool:'point',panel:'light'},
+  {id:'tool.lineLight',cat:'灯光',name:'直线灯带',keys:'L',tool:'lineLight',panel:'light'},
+  {id:'tool.rectLight',cat:'灯光',name:'矩形灯带',keys:'R',tool:'rectLight',panel:'light'},
+  {id:'tool.ellipseLight',cat:'灯光',name:'圆 / 椭圆灯带',keys:'E',tool:'ellipseLight',panel:'light'},
+  {id:'tool.polyLight',cat:'灯光',name:'多边形灯带',keys:'G',tool:'polyLight',panel:'light'},
+  {id:'tool.areaLightRect',cat:'灯光',name:'区域光·矩形',keys:'Shift+R',tool:'areaLightRect',panel:'light'},
+  {id:'tool.areaLightCircle',cat:'灯光',name:'区域光·圆形',keys:'Shift+E',tool:'areaLightCircle',panel:'light'},
+  {id:'tool.areaLightTriangle',cat:'灯光',name:'区域光·三角形',keys:'Shift+T',tool:'areaLightTriangle',panel:'light'},
+  {id:'tool.areaLightHex',cat:'灯光',name:'区域光·六边形',keys:'Shift+H',tool:'areaLightHex',panel:'light'},
+  {id:'tool.line',cat:'标注',name:'普通线',keys:'A',tool:'line',panel:'mark'},
+  {id:'tool.arrow',cat:'标注',name:'箭头',keys:'Shift+A',tool:'arrow',panel:'mark'},
+  {id:'tool.text',cat:'标注',name:'文字',keys:'T',tool:'text',panel:'mark'},
+  {id:'tool.areaRect',cat:'标注',name:'普通区域·矩形',keys:'U',tool:'areaRect',panel:'mark'},
+  {id:'tool.areaCircle',cat:'标注',name:'普通区域·圆形',keys:'Shift+U',tool:'areaCircle',panel:'mark'},
+  {id:'action.copy',cat:'编辑',name:'复制选中对象',keys:'Ctrl+C',action:'copy'},
+  {id:'action.paste',cat:'编辑',name:'粘贴对象',keys:'Ctrl+V',action:'paste'},
+  {id:'action.delete',cat:'编辑',name:'删除选中对象',keys:'Delete',action:'delete'},
+  {id:'action.fit',cat:'视图',name:'适配画布',keys:'Ctrl+0',action:'fit'},
+  {id:'action.zoomIn',cat:'视图',name:'放大画布',keys:'Ctrl+=',action:'zoomIn'},
+  {id:'action.zoomOut',cat:'视图',name:'缩小画布',keys:'Ctrl+-',action:'zoomOut'},
+  {id:'action.exportPng',cat:'文件',name:'导出 PNG',keys:'Ctrl+Shift+P',action:'exportPng'},
+  {id:'action.saveJson',cat:'文件',name:'保存 JSON',keys:'Ctrl+S',action:'saveJson'},
+  {id:'action.importJson',cat:'文件',name:'导入 JSON',keys:'Ctrl+I',action:'importJson'},
+  {id:'action.uploadBg',cat:'文件',name:'上传图纸',keys:'Ctrl+O',action:'uploadBg'},
+  {id:'action.version',cat:'文件',name:'版本信息',keys:'F1',action:'version'},
+  {id:'action.aiPrompt',cat:'AI',name:'AI提示词',keys:'Ctrl+Alt+P',action:'aiPrompt'}
+];
+function loadShortcuts(){let custom={};try{custom=JSON.parse(localStorage.xitieShortcutsV1||'{}')}catch(e){};return shortcutDefaults.map(d=>({...d,keys:(custom[d.id]!==undefined?custom[d.id]:d.keys)}))}
+function saveShortcut(id,keys){let custom={};try{custom=JSON.parse(localStorage.xitieShortcutsV1||'{}')}catch(e){};custom[id]=keys;localStorage.xitieShortcutsV1=JSON.stringify(custom);renderShortcutMini();updateShortcutLabels()}
+function resetShortcuts(){localStorage.removeItem('xitieShortcutsV1');renderShortcutMini();updateShortcutLabels();toastMsg('快捷键已恢复默认')}
+function comboFromEvent(e){let k=e.key;if(k===' ')k='Space';else if(k==='Esc')k='Escape';else if(k==='Del')k='Delete';else if(k==='Add')k='=';else if(k==='Subtract')k='-';else if(k.length===1)k=k.toUpperCase();let parts=[];if(e.ctrlKey||e.metaKey)parts.push('Ctrl');if(e.altKey)parts.push('Alt');if(e.shiftKey)parts.push('Shift');if(!['Control','Shift','Alt','Meta'].includes(k))parts.push(k);return parts.join('+')}
+function shortcutByCombo(combo){if(!combo)return null;return loadShortcuts().find(s=>s.keys===combo)}
+function applyShortcut(sc){
+  if(!sc)return false;
+  if(sc.tool){setTopPanel(sc.panel||'light');setTool(sc.tool);return true}
+  switch(sc.action){
+    case 'copy': return copySelected();
+    case 'paste': return pasteClipboard();
+    case 'delete': if(sel.size){deleteSelected();return true}return false;
+    case 'fit': fit();return true;
+    case 'zoomIn': zoomAt({x:W/2,y:H/2},1.15);return true;
+    case 'zoomOut': zoomAt({x:W/2,y:H/2},1/1.15);return true;
+    case 'exportPng': document.getElementById('pngBtn')?.click();return true;
+    case 'saveJson': document.getElementById('jsonBtn')?.click();return true;
+    case 'importJson': document.getElementById('jsonIn')?.click();return true;
+    case 'uploadBg': document.getElementById('bgIn')?.click();return true;
+    case 'version': showVersionInfo();return true;
+    case 'aiPrompt': setTopPanel('ai');showAiPrompt();return true;
+  }
+  return false;
+}
+function handleShortcutKey(e){
+  if(e.target&&e.target.matches('input,textarea,select'))return;
+  const modal=document.getElementById('xitieModalMask');
+  if(modal&&modal.style.display==='flex'&&e.key!=='Escape')return;
+  if(e.key==='Escape'&&modal&&modal.style.display==='flex'){modal.style.display='none';e.preventDefault();return}
+  const combo=comboFromEvent(e),sc=shortcutByCombo(combo);
+  if(sc){let ok=applyShortcut(sc);e.preventDefault();return}
+}
+function renderShortcutMini(){
+  const el=document.getElementById('shortcutMini');if(!el)return;
+  const pick=['tool.select','tool.pan','tool.point','tool.lineLight','tool.rectLight','tool.text','action.copy','action.paste','action.delete','action.fit'];
+  const map=Object.fromEntries(loadShortcuts().map(s=>[s.id,s]));
+  el.innerHTML=pick.map(id=>map[id]&&map[id].keys?`<span class="shortcutQuick"><kbd>${esc(map[id].keys)}</kbd>${esc(map[id].name.replace('工具',''))}</span>`:'').join('');
+}
+function setShortcutTitle(el,key){
+  if(!el||!key)return;
+  if(el.dataset.baseTitle===undefined)el.dataset.baseTitle=(el.getAttribute('title')||'').replace(/｜?快捷键：.+$/,'');
+  const base=el.dataset.baseTitle;
+  el.title=(base?base+'｜':'')+'快捷键：'+key;
+}
+function updateShortcutLabels(){
+  const byTool={};loadShortcuts().forEach(s=>{if(s.tool&&s.keys)byTool[s.tool]=s.keys});
+  document.querySelectorAll('.tool[data-t]').forEach(b=>{const k=byTool[b.dataset.t];if(k)setShortcutTitle(b,k)});
+  const a=Object.fromEntries(loadShortcuts().filter(s=>s.action).map(s=>[s.action,s.keys]));
+  [['pngBtn','exportPng'],['jsonBtn','saveJson'],['versionBtn','version'],['fitBtn','fit'],['zIn','zoomIn'],['zOut','zoomOut'],['aiPromptBtn','aiPrompt']].forEach(([id,act])=>{let b=document.getElementById(id);if(b&&a[act])setShortcutTitle(b,a[act])});
+}
+function showShortcutSettings(){
+  const rows=loadShortcuts().map(s=>`<div class="shortcutRow" data-id="${escAttr(s.id)}"><div class="shortcutCat">${esc(s.cat)}</div><div class="shortcutName">${esc(s.name)}</div><input class="shortcutKeyInput" data-key-for="${escAttr(s.id)}" value="${escAttr(s.keys)}" readonly><button data-capture="${escAttr(s.id)}">修改</button><button data-clear="${escAttr(s.id)}">清空</button></div>`).join('');
+  xitieModal('快捷键设置 / 可自定义',`<div class="small">点击“修改”后，直接按下新的组合键即可。支持单键、Ctrl、Alt、Shift 组合。输入框为空时表示禁用该快捷键。</div><div class="shortcutTable"><div class="shortcutRow head"><div>分类</div><div>功能</div><div>快捷键</div><div></div><div></div></div>${rows}</div><div class="xitieActions"><button id="shortcutModalReset">恢复默认</button><button id="shortcutModalClose">完成</button></div>`);
+  setTimeout(()=>{
+    document.querySelectorAll('[data-capture]').forEach(btn=>btn.onclick=()=>captureShortcut(btn.dataset.capture));
+    document.querySelectorAll('[data-clear]').forEach(btn=>btn.onclick=()=>{saveShortcut(btn.dataset.clear,'');showShortcutSettings()});
+    document.getElementById('shortcutModalReset').onclick=()=>{resetShortcuts();showShortcutSettings()};
+    document.getElementById('shortcutModalClose').onclick=()=>document.getElementById('xitieModalMask').style.display='none';
+  });
+}
+function captureShortcut(id){
+  const input=[...document.querySelectorAll('[data-key-for]')].find(el=>el.dataset.keyFor===id);if(!input)return;
+  input.value='请按新快捷键...';input.classList.remove('shortcutConflict');
+  const listener=(e)=>{
+    e.preventDefault();e.stopPropagation();
+    if(e.key==='Escape'){document.removeEventListener('keydown',listener,true);showShortcutSettings();return}
+    const combo=comboFromEvent(e);
+    if(!combo){return}
+    const used=loadShortcuts().find(s=>s.id!==id&&s.keys===combo);
+    if(used){input.value=`冲突：${used.name}`;input.classList.add('shortcutConflict');toastMsg('快捷键冲突，请换一个组合键');return}
+    saveShortcut(id,combo);document.removeEventListener('keydown',listener,true);showShortcutSettings();toastMsg('快捷键已更新：'+combo);
+  };
+  document.addEventListener('keydown',listener,true);
+}
+const defaultAiTemplates=[
+  {id:'sys_modern_simple',sys:true,name:'现代简约风',mode:'line_to_plan',prompt:'将上传的黑白户型线稿转换为现代简约风格彩平图。严格保留原始户型结构、墙体、门窗、房间比例和空间关系，不改变布局。整体采用浅灰、米白、木色为主色调，地面材质简洁自然，空间分区清晰，墙体线条干净，家具只做轻量化示意，不要过度装饰。画面要像专业室内设计彩平图，清爽、高级、明亮，适合智能家居方案展示。',negative:'不要改变户型结构，不要改变墙体位置，不要改变门窗位置，不要改变房间比例，不要新增房间，不要删除房间，不要把线稿变成立体透视图，不要生成3D效果图，不要生成室内效果图，不要过度添加家具，不要添加人物，不要添加文字，不要添加水印，不要模糊，不要扭曲，不要改变原始平面图方向。'},
+  {id:'sys_light_luxury_warm_grey',sys:true,name:'轻奢暖灰风',mode:'line_to_plan',prompt:'将上传的户型线稿转换为轻奢暖灰风格彩平图。严格保留原始线稿的墙体、门窗、房间比例和户型结构，不得改变空间布局。整体采用暖灰、米咖、浅金、柔和木色搭配，地面和软装呈现高级轻奢质感，空间分区明确，色彩低饱和，光感柔和。家具和装饰只做适度表达，不要复杂堆砌，画面要有高端住宅方案的质感。',negative:'不要改变户型结构，不要改变墙体位置，不要改变门窗位置，不要改变房间比例，不要新增房间，不要删除房间，不要把线稿变成立体透视图，不要生成3D效果图，不要生成室内效果图，不要过度添加家具，不要添加人物，不要添加文字，不要添加水印，不要模糊，不要扭曲，不要改变原始平面图方向。'},
+  {id:'sys_creamy_wood',sys:true,name:'奶油原木风',mode:'line_to_plan',prompt:'将上传的户型线稿转换为奶油原木风格彩平图。严格保持原始户型结构、墙体边界、门窗位置、房间比例和空间关系。整体使用奶油白、浅米色、浅原木、柔和暖色为主，营造温馨、干净、自然的家居氛围。地面材质以浅木纹和柔和瓷砖为主，家具简洁圆润，空间明亮舒适。不要改变户型，不要添加过多复杂装饰。',negative:'不要改变户型结构，不要改变墙体位置，不要改变门窗位置，不要改变房间比例，不要新增房间，不要删除房间，不要把线稿变成立体透视图，不要生成3D效果图，不要生成室内效果图，不要过度添加家具，不要添加人物，不要添加文字，不要添加水印，不要模糊，不要扭曲，不要改变原始平面图方向。'},
+  {id:'sys_black_white_grey',sys:true,name:'黑白灰高级风',mode:'line_to_plan',prompt:'将上传的户型线稿转换为黑白灰高级风格彩平图。严格保留原始户型线稿结构、墙体、门窗、房间比例和空间关系，不改变任何布局。整体采用黑、白、灰、深灰木纹、浅灰石材等低饱和色彩，表现现代、高级、克制的空间气质。空间分区清晰，墙体线条利落，家具简洁有设计感，画面适合高端智能家居方案展示。',negative:'不要改变户型结构，不要改变墙体位置，不要改变门窗位置，不要改变房间比例，不要新增房间，不要删除房间，不要把线稿变成立体透视图，不要生成3D效果图，不要生成室内效果图，不要过度添加家具，不要添加人物，不要添加文字，不要添加水印，不要模糊，不要扭曲，不要改变原始平面图方向。'},
+  {id:'sys_modern_tech',sys:true,name:'现代科技智能风',mode:'line_to_plan',prompt:'将上传的户型线稿转换为现代科技智能风格彩平图。严格保持原始户型结构、墙体、门窗、房间比例和空间关系，不得修改布局。整体采用冷灰、深灰、蓝灰、白色为主色调，空间干净现代，适当加入轻微科技感光效和智能家居氛围，但不要过度发光。房间分区清晰，地面材质简洁，家具以现代简洁造型为主，适合智能照明、智能家居方案展示。',negative:'不要改变户型结构，不要改变墙体位置，不要改变门窗位置，不要改变房间比例，不要新增房间，不要删除房间，不要把线稿变成立体透视图，不要生成3D效果图，不要生成室内效果图，不要过度添加家具，不要添加人物，不要添加文字，不要添加水印，不要模糊，不要扭曲，不要改变原始平面图方向。'},
+  {id:'sys_wabi_sabi_microcement',sys:true,name:'侘寂微水泥风',mode:'line_to_plan',prompt:'将上传的户型线稿转换为侘寂微水泥风格彩平图。严格保留原始户型结构、墙体边界、门窗位置、房间比例和空间关系，不改变布局。整体采用微水泥灰、米灰、暖白、浅木色等低饱和自然色系，画面安静、克制、有设计感。材质表现柔和细腻，家具简洁自然，避免强烈对比和复杂装饰，呈现高级、安静、自然的室内彩平图效果。',negative:'不要改变户型结构，不要改变墙体位置，不要改变门窗位置，不要改变房间比例，不要新增房间，不要删除房间，不要把线稿变成立体透视图，不要生成3D效果图，不要生成室内效果图，不要过度添加家具，不要添加人物，不要添加文字，不要添加水印，不要模糊，不要扭曲，不要改变原始平面图方向。'},
+  {id:'sys_modern_oriental',sys:true,name:'现代东方风',mode:'line_to_plan',prompt:'将上传的户型线稿转换为现代东方风格彩平图。严格保持原始户型结构、墙体、门窗、房间比例和空间关系，不得改变布局。整体采用米白、暖灰、深木色、浅咖色为主，适当体现东方空间秩序和沉稳质感。家具简洁，不要传统复杂雕花，空间氛围高级、安静、有文化感。画面应像专业室内设计彩平图，清晰表达空间分区。',negative:'不要改变户型结构，不要改变墙体位置，不要改变门窗位置，不要改变房间比例，不要新增房间，不要删除房间，不要把线稿变成立体透视图，不要生成3D效果图，不要生成室内效果图，不要过度添加家具，不要添加人物，不要添加文字，不要添加水印，不要模糊，不要扭曲，不要改变原始平面图方向。'},
+  {id:'sys_business_display',sys:true,name:'商业展示彩平风',mode:'line_to_plan',prompt:'将上传的户型线稿转换为商业展示级彩平图。严格保留原始户型结构、墙体边界、门窗位置、房间比例和空间关系，不改变任何布局。整体画面要清晰、规整、专业，房间分区明确，不同空间用协调的浅色系区分，墙体线条清楚，地面材质和家具表达适度。画面适合放入客户方案书、智能家居报价方案和施工沟通资料中。',negative:'不要改变户型结构，不要改变墙体位置，不要改变门窗位置，不要改变房间比例，不要新增房间，不要删除房间，不要把线稿变成立体透视图，不要生成3D效果图，不要生成室内效果图，不要过度添加家具，不要添加人物，不要添加文字，不要添加水印，不要模糊，不要扭曲，不要改变原始平面图方向。'},
+  {id:'sys_showroom',sys:true,name:'高端样板间风',mode:'line_to_plan',prompt:'将上传的户型线稿转换为高端样板间风格彩平图。严格保留原始户型结构、墙体、门窗、房间比例和空间关系，不改变布局。整体采用高级暖灰、米白、浅咖、木饰面和石材质感，空间氛围精致、舒适、有品质感。家具布置只做合理示意，不要拥挤，不要改变房间用途。画面要明亮、干净、适合客户展示和方案汇报。',negative:'不要改变户型结构，不要改变墙体位置，不要改变门窗位置，不要改变房间比例，不要新增房间，不要删除房间，不要把线稿变成立体透视图，不要生成3D效果图，不要生成室内效果图，不要过度添加家具，不要添加人物，不要添加文字，不要添加水印，不要模糊，不要扭曲，不要改变原始平面图方向。'}
+];
+function loadAiTemplates(){let custom=[];try{custom=JSON.parse(localStorage.xitieAiTemplatesV1||'[]')}catch(e){};return defaultAiTemplates.concat(custom)}
+function saveAiTemplates(custom){localStorage.xitieAiTemplatesV1=JSON.stringify(custom)}
+function findAiTemplate(id){return loadAiTemplates().find(t=>t.id===id)||loadAiTemplates()[0]}
+function renderAiTemplateSelect(id='aiTemplate'){
+  const el=document.getElementById(id);if(!el)return;
+  const cur=el.value;
+  el.innerHTML=loadAiTemplates().map(t=>`<option value="${escAttr(t.id)}">${t.sys?'系统｜':'自定义｜'}${esc(t.name)}</option>`).join('');
+  if(cur&&[...el.options].some(o=>o.value===cur))el.value=cur;
+}
+function applyAiTemplate(id){
+  const t=findAiTemplate(id||document.getElementById('aiTemplate')?.value);if(!t)return;
+  let c={};try{c=JSON.parse(localStorage.xitieAiConfig||'{}')}catch(e){}
+  c.template=t.id;c.prompt=t.prompt;c.negative=t.negative||'';if(t.mode)c.mode=t.mode;
+  localStorage.xitieAiPrompt=c.prompt;localStorage.xitieAiNegative=c.negative;localStorage.xitieAiConfig=JSON.stringify(c);
+  if(document.getElementById('aiTemplate'))document.getElementById('aiTemplate').value=t.id;
+  if(document.getElementById('aiMode')&&t.mode)document.getElementById('aiMode').value=t.mode;
+  toastMsg('已套用提示词模板：'+t.name);
+}
+function savePromptFields(){
+  let c={};try{c=JSON.parse(localStorage.xitieAiConfig||'{}')}catch(e){}
+  c.prompt=document.getElementById('aiPromptText')?.value||'';c.negative=document.getElementById('aiNegativeText')?.value||'';c.template=document.getElementById('aiTemplate')?.value||c.template||'';
+  localStorage.xitieAiPrompt=c.prompt;localStorage.xitieAiNegative=c.negative;localStorage.xitieAiConfig=JSON.stringify(c);
+}
+function saveCurrentPromptAsTemplate(){
+  const name=prompt('自定义模板名称','我的彩平图模板');if(!name)return;
+  const promptText=document.getElementById('aiPromptText')?.value||localStorage.xitieAiPrompt||defaultAiTemplates[0].prompt;
+  const negative=document.getElementById('aiNegativeText')?.value||localStorage.xitieAiNegative||defaultAiTemplates[0].negative;
+  let custom=loadAiTemplates().filter(t=>!t.sys);
+  const t={id:'tpl_'+Date.now(),sys:false,name,mode:document.getElementById('aiMode')?.value||'line_to_plan',prompt:promptText,negative};
+  custom.push(t);saveAiTemplates(custom);renderAiTemplateSelect();renderAiTemplateSelect('aiPromptTemplate');document.getElementById('aiTemplate').value=t.id;toastMsg('已保存自定义提示词模板');
+}
+function showAiTemplateManager(){
+  const opts=loadAiTemplates().map(t=>`<option value="${escAttr(t.id)}">${t.sys?'系统｜':'自定义｜'}${esc(t.name)}</option>`).join('');
+  const first=findAiTemplate(document.getElementById('aiTemplate')?.value);
+  xitieModal('AI 提示词模板管理',`<div class="templateEditor"><label>选择模板</label><select id="tplSelect">${opts}</select><label>模板名称</label><input id="tplName" class="shortName" value="${escAttr(first.name)}"><label>正向提示词</label><textarea id="tplPrompt">${esc(first.prompt)}</textarea><label>负面提示词</label><textarea id="tplNegative">${esc(first.negative||'')}</textarea></div><div class="small"><span class="templateBadge">系统模板</span> 可以套用或另存为自定义；自定义模板可以更新和删除。</div><div class="xitieActions"><button id="tplApply">套用</button><button id="tplSaveNew">保存为自定义模板</button><button id="tplUpdate">更新自定义</button><button id="tplDelete" class="danger">删除自定义</button></div>`);
+  setTimeout(()=>{
+    const fill=()=>{let t=findAiTemplate(document.getElementById('tplSelect').value);document.getElementById('tplName').value=t.name;document.getElementById('tplPrompt').value=t.prompt;document.getElementById('tplNegative').value=t.negative||''};
+    document.getElementById('tplSelect').value=first.id;document.getElementById('tplSelect').onchange=fill;
+    document.getElementById('tplApply').onclick=()=>{applyAiTemplate(document.getElementById('tplSelect').value);document.getElementById('xitieModalMask').style.display='none'};
+    document.getElementById('tplSaveNew').onclick=()=>{let custom=loadAiTemplates().filter(t=>!t.sys);let t={id:'tpl_'+Date.now(),sys:false,name:document.getElementById('tplName').value||'自定义模板',mode:document.getElementById('aiMode')?.value||'line_to_plan',prompt:document.getElementById('tplPrompt').value,negative:document.getElementById('tplNegative').value};custom.push(t);saveAiTemplates(custom);renderAiTemplateSelect();document.getElementById('aiTemplate').value=t.id;showAiTemplateManager();toastMsg('模板已保存')};
+    document.getElementById('tplUpdate').onclick=()=>{let id=document.getElementById('tplSelect').value,base=findAiTemplate(id);if(base.sys)return toastMsg('系统模板不能直接更新，请保存为自定义模板');let custom=loadAiTemplates().filter(t=>!t.sys);let t=custom.find(x=>x.id===id);if(t){t.name=document.getElementById('tplName').value||t.name;t.prompt=document.getElementById('tplPrompt').value;t.negative=document.getElementById('tplNegative').value;saveAiTemplates(custom);renderAiTemplateSelect();showAiTemplateManager();toastMsg('自定义模板已更新')}};
+    document.getElementById('tplDelete').onclick=()=>{let id=document.getElementById('tplSelect').value,base=findAiTemplate(id);if(base.sys)return toastMsg('系统模板不能删除');let custom=loadAiTemplates().filter(t=>!t.sys&&t.id!==id);saveAiTemplates(custom);renderAiTemplateSelect();showAiTemplateManager();toastMsg('自定义模板已删除')};
+  });
+}
+
+function showVersionInfo(){
+  xitieModal('版本信息 / 更新说明',`<h3>西铁照明彩平图工具</h3><div class="small">当前版本：AI多风格提示词模板版</div><h3>本次更新</h3><ul><li>新增 AI 生图工作区，支持配置 AI 平台、生成模式、API Key 和提示词。</li><li>新增线稿转彩平图多风格提示词模板，包含现代简约、轻奢暖灰、奶油原木、黑白灰高级、现代科技智能、侘寂微水泥、现代东方、商业展示、高端样板间等风格。</li><li>支持自定义 AI 提示词模板，可保存、套用、更新和删除。</li><li>常用绘图工具和常用操作支持快捷键，并可自定义快捷键。</li><li>支持对象图层管理、对象组管理、显示隐藏、锁定解锁和层级调整。</li><li>支持对象选择、框选、多选、复制粘贴、删除、旋转和缩放编辑。</li><li>支持普通区域多形状绘制，包括矩形、三角形、圆形和六边形。</li></ul><h3>说明</h3><ul><li>AI 生图当前为接口预留版本，后续 EXE 版将通过本地服务调用模型。</li><li>连续灯带功能仍在优化中，当前版本暂不开放。</li></ul>`)
+}
+function loadAiConfig(){
+  let c={};try{c=JSON.parse(localStorage.xitieAiConfig||'{}')}catch(e){}
+  let p=document.getElementById('aiProvider'),m=document.getElementById('aiMode'),k=document.getElementById('aiKey'),t=document.getElementById('aiTemplate');
+  if(p&&c.provider)p.value=c.provider;if(m&&c.mode)m.value=c.mode;if(k&&c.key)k.value=c.key;if(t&&c.template)t.value=c.template;
+}
+function saveAiConfig(){
+  const c={provider:document.getElementById('aiProvider')?.value||'doubao',mode:document.getElementById('aiMode')?.value||'line_to_plan',template:document.getElementById('aiTemplate')?.value||'',key:document.getElementById('aiKey')?.value||'',prompt:localStorage.xitieAiPrompt||'',negative:localStorage.xitieAiNegative||''};
+  localStorage.xitieAiConfig=JSON.stringify(c);toastMsg('AI配置已保存到本机浏览器，EXE版可改为本机加密保存');
+}
+function showAiPrompt(){
+  let cfg={};try{cfg=JSON.parse(localStorage.xitieAiConfig||'{}')}catch(e){}
+  const prompt=cfg.prompt||localStorage.xitieAiPrompt||defaultAiTemplates[0].prompt;
+  const neg=cfg.negative||localStorage.xitieAiNegative||defaultAiTemplates[0].negative;
+  xitieModal('AI 生图提示词',`<div class="xitieGrid"><label>提示词模板</label><div class="row"><select id="aiPromptTemplate" style="flex:1"></select><button id="aiPromptApply">套用模板</button><button id="aiPromptSaveTpl">保存为模板</button></div><label>正向提示词</label><textarea id="aiPromptText">${esc(prompt)}</textarea><label>负面提示词</label><textarea id="aiNegativeText">${esc(neg)}</textarea></div><div class="small">提示：当前 HTML 版本会把提示词和模板保存到本机浏览器。后续 EXE 版可由本地中转服务把线稿图片、提示词、API Key 一起发送给 AI 平台。</div><div class="xitieActions"><button id="aiPromptSave">保存提示词</button></div>`);
+  setTimeout(()=>{
+    renderAiTemplateSelect('aiPromptTemplate');
+    let apply=document.getElementById('aiPromptApply');if(apply)apply.onclick=()=>{let t=findAiTemplate(document.getElementById('aiPromptTemplate').value);if(t){document.getElementById('aiPromptText').value=t.prompt;document.getElementById('aiNegativeText').value=t.negative||''}};
+    let saveTpl=document.getElementById('aiPromptSaveTpl');if(saveTpl)saveTpl.onclick=()=>saveCurrentPromptAsTemplate();
+    let b=document.getElementById('aiPromptSave');if(b)b.onclick=()=>{savePromptFields();document.getElementById('xitieModalMask').style.display='none';toastMsg('提示词已保存')};
+  });
+}
+function aiGenerateReserved(){
+  saveAiConfig();
+  xitieModal('AI 生图接口预留',`<h3>当前状态</h3><div>AI 生图界面已经预留，但当前纯 HTML 版本不会直接调用外部 AI 接口。</div><h3>正式接入方式</h3><ul><li>打包 EXE 后，由 EXE 主进程 / 本地后端作为中转。</li><li>API Key 由本地后端加密保存，不暴露在前端页面。</li><li>本地中转负责上传线稿、发送提示词、接收图片结果。</li><li>返回结果后可扩展为：预览、应用为底图、作为新图层插入。</li></ul><div class="small">这样可以避免浏览器 CORS 跨域问题，也避免密钥直接暴露在网页 JS 中。</div>`)
+}
+document.getElementById('versionBtn')?.addEventListener('click',showVersionInfo);
+document.getElementById('shortcutSettingsBtn')?.addEventListener('click',showShortcutSettings);
+document.getElementById('shortcutResetBtn')?.addEventListener('click',resetShortcuts);
+document.getElementById('aiSaveKey')?.addEventListener('click',saveAiConfig);
+document.getElementById('aiPromptBtn')?.addEventListener('click',showAiPrompt);
+document.getElementById('aiGenerateBtn')?.addEventListener('click',aiGenerateReserved);
+document.getElementById('aiApplyTemplate')?.addEventListener('click',()=>applyAiTemplate());
+document.getElementById('aiTemplateManage')?.addEventListener('click',showAiTemplateManager);
+renderShortcutMini();updateShortcutLabels();renderAiTemplateSelect();
+loadAiConfig();
+document.getElementById('layerTop')?.addEventListener('click',()=>moveLayer('top'));document.getElementById('layerUp')?.addEventListener('click',()=>moveLayer('up'));document.getElementById('layerDown')?.addEventListener('click',()=>moveLayer('down'));document.getElementById('layerBottom')?.addEventListener('click',()=>moveLayer('bottom'));document.getElementById('groupNew')?.addEventListener('click',createGroupFromSelection);document.getElementById('groupAdd')?.addEventListener('click',addSelectedToGroup);document.getElementById('groupRemove')?.addEventListener('click',removeSelectedFromGroup);fit();props();updateCursor();render();
+})();
+</script>
+</body>
+</html>
